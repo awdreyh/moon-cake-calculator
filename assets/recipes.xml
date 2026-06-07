@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<recipes>
+  <!-- Dough Recipe -->
+  <recipe>
+    <name>Cantonese style moon cake dough</name>
+    <type>dough</type>
+    <style>Cantonese style</style>
+    <description>Traditional Cantonese moon cake dough</description>
+    <ingredients>
+      <ingredient name="flour" amount="200" unit="g"/>
+      <ingredient name="syrup" amount="150" unit="g"/>
+      <ingredient name="lye water" amount="2" unit="g"/>
+      <ingredient name="oil" amount="30" unit="g"/>
+      <ingredient name="flour" amount="30" unit="g"/>
+      <ingredient name="syrup" amount="30" unit="g"/>
+      <ingredient name="lye water" amount="0.5" unit="g"/>
+    </ingredients>
+  </recipe>
+
+  <!-- Snow Skin Dough Recipe -->
+  <recipe>
+    <name>Snow skin moon cake dough</name>
+    <type>dough</type>
+    <style>Snow skin</style>
+    <description>Snow skin moon cake dough</description>
+    <ingredients>
+      <ingredient name="glutinous rice flour" amount="100" unit="g"/>
+      <ingredient name="powder sugar" amount="50" unit="g"/>
+      <ingredient name="milk" amount="50" unit="ml"/>
+      <ingredient name="butter" amount="20" unit="g"/>
+    </ingredients>
+  </recipe>
+
+  <!-- Filling Recipes -->
+  <recipe>
+    <name>Red bean filling</name>
+    <type>filling</type>
+    <filling_type>red bean</filling_type>
+    <description>Traditional red bean filling for moon cakes</description>
+    <ingredients>
+      <ingredient name="red bean (dry)" amount="500" unit="g"/>
+      <ingredient name="syrup" amount="1" unit="g"/>
+      <ingredient name="sugar" amount="30" unit="g"/>
+      <ingredient name="oil" amount="30" unit="g"/>
+    </ingredients>
+  </recipe>
+
+  <recipe>
+    <name>Lotus seed filling</name>
+    <type>filling</type>
+    <filling_type>lotus seed</filling_type>
+    <description>Traditional lotus seed filling for moon cakes</description>
+    <ingredients>
+      <ingredient name="lotus seed (dry)" amount="400" unit="g"/>
+      <ingredient name="sugar" amount="30" unit="g"/>
+      <ingredient name="oil" amount="30" unit="g"/>
+      <ingredient name="syrup" amount="0.5" unit="g"/>
+    </ingredients>
+  </recipe>
+
+  <recipe>
+    <name>Five nuts filling</name>
+    <type>filling</type>
+    <filling_type>five nuts</filling_type>
+    <description>Traditional five nuts filling for moon cakes</description>
+    <ingredients>
+      <ingredient name="mixed nuts" amount="300" unit="g"/>
+      <ingredient name="mixed dried fruits" amount="40" unit="g"/>
+      <ingredient name="oil" amount="20" unit="g"/>
+      <ingredient name="syrup" amount="20" unit="g"/>
+      <ingredient name="sugar" amount="1" unit="g"/>
+      <ingredient name="other" amount="1" unit="g"/>
+    </ingredients>
+  </recipe>
+</recipes>
