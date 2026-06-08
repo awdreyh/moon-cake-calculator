@@ -35,6 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   xml: ^6.3.0
+  path_provider: ^2.0.17
 
 dev_dependencies:
   flutter_test:
@@ -88,3 +89,5 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+  assets:
+    - assets/recipes.xml

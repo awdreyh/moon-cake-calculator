@@ -121,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const ListPage()),
+                    MaterialPageRoute(builder: (context) => const RecipeListPage()),
                   );
                 },
                 child: const Text('Go to List'),
