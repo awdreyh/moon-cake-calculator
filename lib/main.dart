@@ -1,39 +1,35 @@
 import 'package:flutter/material.dart';
-import 'list_page.dart';
-import 'recipe_details_page.dart';
+import 'package:provider/provider.dart';
+import 'app_bottom_navigation.dart';
+import 'app_strings.dart';
+import 'language_provider.dart';
+import 'recipe_details.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
     return MaterialApp(
       title: 'Moon Cake Calculator',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: .fromSeed(
           seedColor: const Color.fromARGB(255, 183, 131, 58),
         ),
       ),
+      locale: languageProvider.locale,
       home: const MyHomePage(title: 'Moon Cake Calculator'),
     );
   }
@@ -47,7 +43,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  //int _counter = 0;
   int _currentNavIndex = 0;
   String? _selectedType = 'Cantonese-style';
   String? _fillingType;
@@ -88,22 +84,66 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  void _incrementCounter() {
-    setState(() {
+  // void _incrementCounter() {
+  //   setState(() {
 
-      _counter--;
-    });
-  }
+  //    // _counter--;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final lang = languageProvider.languageCode;
 
     return Scaffold(
       appBar: AppBar(
-
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
         title: Text(widget.title),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.language),
+            onSelected: (String value) {
+              languageProvider.setLanguage(value);
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              PopupMenuItem<String>(
+                value: 'en',
+                child: Row(
+                  children: [
+                    Radio<String>(
+                      value: 'en',
+                      groupValue: lang,
+                      onChanged: (value) {
+                        Navigator.pop(context);
+                        languageProvider.setLanguage(value!);
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    Text(AppStrings.get('english', lang)),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'zh',
+                child: Row(
+                  children: [
+                    Radio<String>(
+                      value: 'zh',
+                      groupValue: lang,
+                      onChanged: (value) {
+                        Navigator.pop(context);
+                        languageProvider.setLanguage(value!);
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    Text(AppStrings.get('chinese', lang)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -111,28 +151,12 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('You have pushed the button this many times:'),
               Text(
-                '$_counter',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const RecipeListPage()),
-                  );
-                },
-                child: const Text('Go to List'),
-              ),
-              const SizedBox(height: 40),
-              const Text(
-                'Add new task',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                AppStrings.get('addNewTask', lang),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
-              const Text('Type'),
+              Text(AppStrings.get('type', lang)),
               const SizedBox(height: 8),
               Wrap(
                 alignment: WrapAlignment.center,
@@ -152,7 +176,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       });
                     },
                     child: Text(
-                      'Cantonese-style',
+                      AppStrings.get('cantonese', lang),
                       style: TextStyle(
                         color: _selectedType == 'Cantonese-style'
                             ? Colors.white
@@ -173,7 +197,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       });
                     },
                     child: Text(
-                      'Snow skin',
+                      AppStrings.get('snowSkin', lang),
                       style: TextStyle(
                         color: _selectedType == 'Snow skin'
                             ? Colors.white
@@ -185,7 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               if (_selectedType != null) ...[
                 const SizedBox(height: 24),
-                const Text('Select recipe'),
+                Text(AppStrings.get('selectRecipe', lang)),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -282,7 +306,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     );
                                   },
                                   child: Text(
-                                    'View Details',
+                                    AppStrings.get('viewDetails', lang),
                                     style: TextStyle(
                                       color: Theme.of(
                                         context,
@@ -301,7 +325,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
               const SizedBox(height: 24),
-              const Text('Filling type'),
+              Text(AppStrings.get('fillingType', lang)),
               const SizedBox(height: 8),
               Wrap(
                 alignment: WrapAlignment.center,
@@ -318,7 +342,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       setState(() => _fillingType = 'Read Bean');
                     },
                     child: Text(
-                      'Read Bean',
+                      AppStrings.get('readBean', lang),
                       style: TextStyle(
                         color: _fillingType == 'Read Bean'
                             ? Colors.white
@@ -336,7 +360,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       setState(() => _fillingType = 'Lotus Seed');
                     },
                     child: Text(
-                      'Lotus Seed',
+                      AppStrings.get('lotusSeeds', lang),
                       style: TextStyle(
                         color: _fillingType == 'Lotus Seed'
                             ? Colors.white
@@ -354,7 +378,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       setState(() => _fillingType = 'Five Nuts');
                     },
                     child: Text(
-                      'Five Nuts',
+                      AppStrings.get('fiveNuts', lang),
                       style: TextStyle(
                         color: _fillingType == 'Five Nuts'
                             ? Colors.white
@@ -365,7 +389,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
               const SizedBox(height: 24),
-              const Text('Pastry/Filling Ratio'),
+              Text(AppStrings.get('pastryFillingRatio', lang)),
               const SizedBox(height: 8),
               Wrap(
                 alignment: WrapAlignment.center,
@@ -394,7 +418,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
               const SizedBox(height: 24),
-              const Text('Size (g)'),
+              Text(AppStrings.get('size', lang)),
               const SizedBox(height: 8),
               Wrap(
                 alignment: WrapAlignment.center,
@@ -430,10 +454,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   controller: _sizeController,
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Size (g)',
-                    contentPadding: EdgeInsets.symmetric(
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: AppStrings.get('size', lang),
+                    contentPadding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 8,
                     ),
@@ -446,7 +470,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text('Qty'),
+              Text(AppStrings.get('qty', lang)),
               const SizedBox(height: 8),
               Wrap(
                 alignment: WrapAlignment.center,
@@ -496,9 +520,9 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(height: 40),
               const Divider(thickness: 2),
               const SizedBox(height: 24),
-              const Text(
-                'Calculate',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Text(
+                AppStrings.get('calculate', lang),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               Container(
@@ -512,7 +536,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Total Weight:'),
+                        Text(AppStrings.get('totalWeight', lang)),
                         Text(
                           '${_size * _quantity}g',
                           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -532,35 +556,18 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Colors.grey[600],
-        currentIndex: _currentNavIndex,
-        onTap: (index) {
-          setState(() {
-            _currentNavIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.task_alt), label: 'Tasks'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant),
-            label: 'Recipes',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: _incrementCounter,
+      //   tooltip: 'Increment',
+      //   child: const Icon(Icons.add),
+      // ),
+      bottomNavigationBar: AppBottomNavigationBar(currentIndex: _currentNavIndex),
     );
   }
 
   List<Widget> _buildRatioBreakdown() {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final lang = languageProvider.languageCode;
     final totalWeight = _size * _quantity;
     final parts = _ratio!.split(':');
     final pastryPart = int.parse(parts[0]);
@@ -576,7 +583,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Pastry Weight:'),
+          Text(AppStrings.get('pastryWeight', lang)),
           Text(
             '${pastryWeight}g',
             style: const TextStyle(fontWeight: FontWeight.bold),
@@ -587,7 +594,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Filling Weight:'),
+          Text(AppStrings.get('fillingWeight', lang)),
           Text(
             '${fillingWeight}g',
             style: const TextStyle(fontWeight: FontWeight.bold),

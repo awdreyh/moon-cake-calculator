@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'app_bottom_navigation.dart';
 import 'recipe.dart';
 import 'recipe_service.dart';
 import 'add_recipe_page.dart';
@@ -75,6 +76,7 @@ class _RecipeListPageState extends State<RecipeListPage> {
         child: const Icon(Icons.add),
         tooltip: 'Add Recipe',
       ),
+      bottomNavigationBar: const AppBottomNavigationBar(currentIndex: 2),
     );
   }
 

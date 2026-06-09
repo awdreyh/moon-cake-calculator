@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'recipe.dart';
 import 'recipe_service.dart';
+import 'app_bottom_navigation.dart';
 
 class AddRecipePage extends StatefulWidget {
   const AddRecipePage({super.key});
@@ -394,6 +395,7 @@ class _AddRecipePageState extends State<AddRecipePage> {
           ),
         ),
       ),
+      bottomNavigationBar: const AppBottomNavigationBar(currentIndex: 2),
     );
   }
 }
