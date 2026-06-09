@@ -2,7 +2,7 @@ class AppStrings {
   static const Map<String, Map<String, String>> translations = {
     'en': {
       'moonCakeCalculator': 'Moon Cake Calculator',
-      'addNewTask': 'Add new task',
+      'addNewTask': 'Which type of moon cake would you like to make?',
       'type': 'Type',
       'cantonese': 'Cantonese-style',
       'snowSkin': 'Snow skin',
@@ -48,10 +48,10 @@ class AppStrings {
     },
     'zh': {
       'moonCakeCalculator': '月饼计算器',
-      'addNewTask': '添加新任务',
+      'addNewTask': '今天您想做哪种类型的月饼？',
       'type': '类型',
       'cantonese': '广式月饼',
-      'snowSkin': '冰皮',
+      'snowSkin': '冰皮月饼',
       'selectRecipe': '选择食谱',
       'viewDetails': '查看详情',
       'fillingType': '馅料类型',

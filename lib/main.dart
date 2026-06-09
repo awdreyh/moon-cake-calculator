@@ -4,6 +4,12 @@ import 'app_bottom_navigation.dart';
 import 'app_strings.dart';
 import 'language_provider.dart';
 import 'recipe_details.dart';
+import 'package:moon_cake_app/utils/greeting.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/services.dart';
+import 'theme/app_theme.dart';
+
+
 
 void main() {
   runApp(
@@ -23,12 +29,26 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final languageProvider = Provider.of<LanguageProvider>(context);
     return MaterialApp(
+      
       title: 'Moon Cake Calculator',
       theme: ThemeData(
-        colorScheme: .fromSeed(
+           colorScheme: .fromSeed(
           seedColor: const Color.fromARGB(255, 183, 131, 58),
         ),
+
+
+    // Modern sans-serif for body text
+    textTheme: TextTheme(
+      bodyLarge: GoogleFonts.openSans(
+        fontSize: 18,
+        color: const Color.fromARGB(255, 44, 26, 3),
       ),
+      bodyMedium: GoogleFonts.openSans(
+        fontSize: 16,
+        color: Colors.black87,
+      ),
+    ),
+  ),
       locale: languageProvider.locale,
       home: const MyHomePage(title: 'Moon Cake Calculator'),
     );
@@ -44,7 +64,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   //int _counter = 0;
-  int _currentNavIndex = 0;
+  final int _currentNavIndex = 0;
   String? _selectedType = 'Cantonese-style';
   String? _fillingType;
   String? _selectedRecipe;
@@ -84,22 +104,25 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  // void _incrementCounter() {
-  //   setState(() {
-
-  //    // _counter--;
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     final languageProvider = Provider.of<LanguageProvider>(context);
     final lang = languageProvider.languageCode;
 
     return Scaffold(
+       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+  surfaceTintColor: Colors.transparent,
+  scrolledUnderElevation: 0,
+        //title: Text(widget.title),
+         toolbarHeight: 32, 
+         systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: const Color.fromARGB(255, 154, 10, 10), // background of the top bar
+          statusBarIconBrightness: Brightness.dark, // icons become white
+),
+         
         actions: [
           PopupMenuButton<String>(
             icon: const Icon(Icons.language),
@@ -151,12 +174,17 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+                 const SizedBox(height: 40),
+              Text(
+    GreetingHelper.greeting(),
+    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+  ),
               Text(
                 AppStrings.get('addNewTask', lang),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
-              Text(AppStrings.get('type', lang)),
+             // Text(AppStrings.get('type', lang)),
               const SizedBox(height: 8),
               Wrap(
                 alignment: WrapAlignment.center,
@@ -168,6 +196,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       backgroundColor: _selectedType == 'Cantonese-style'
                           ? Theme.of(context).colorScheme.primary
                           : Colors.grey[300],
+                           shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16), // adjust radius
+    ),
                     ),
                     onPressed: () {
                       setState(() {
@@ -181,6 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: _selectedType == 'Cantonese-style'
                             ? Colors.white
                             : Colors.black,
+                            fontWeight: FontWeight.w300,
                       ),
                     ),
                   ),
@@ -189,6 +221,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       backgroundColor: _selectedType == 'Snow skin'
                           ? Theme.of(context).colorScheme.primary
                           : Colors.grey[300],
+                           shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16), // adjust radius
+    ),
                     ),
                     onPressed: () {
                       setState(() {
@@ -202,6 +237,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: _selectedType == 'Snow skin'
                             ? Colors.white
                             : Colors.black,
+                            fontWeight: FontWeight.w300,
                       ),
                     ),
                   ),
