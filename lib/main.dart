@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'app_bottom_navigation.dart';
 import 'app_strings.dart';
 import 'language_provider.dart';
-import 'recipe_details.dart';
+
 import 'package:moon_cake_app/utils/greeting.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import 'theme/app_theme.dart';
-
-
 
 void main() {
   runApp(
@@ -31,24 +29,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       
       title: 'Moon Cake Calculator',
-      theme: ThemeData(
-           colorScheme: .fromSeed(
-          seedColor: const Color.fromARGB(255, 183, 131, 58),
-        ),
-
-
-    // Modern sans-serif for body text
-    textTheme: TextTheme(
-      bodyLarge: GoogleFonts.openSans(
-        fontSize: 18,
-        color: const Color.fromARGB(255, 44, 26, 3),
-      ),
-      bodyMedium: GoogleFonts.openSans(
-        fontSize: 16,
-        color: Colors.black87,
-      ),
-    ),
-  ),
+      theme: AppTheme.lightTheme,
       locale: languageProvider.locale,
       home: const MyHomePage(title: 'Moon Cake Calculator'),
     );
@@ -75,29 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
     text: '100',
   );
 
-  final Map<String, List<Map<String, String>>> _recipeOptions = {
-    'Cantonese-style': [
-      {
-        'label': '老爸的食光',
-        'image': 'https://picsum.photos/seed/canto1/400/240',
-        'flour': '50.7%',
-        'vegetableOil': '13.4%',
-        'syrup': '35.8%',
-      },
-      {
-        'label': '萨姐的食谱',
-        'image': 'https://picsum.photos/seed/canto2/400/240',
-        'flour': '50.7%',
-        'vegetableOil': '13.4%',
-        'syrup': '35.8%',
-      },
-    ],
-    'Snow skin': [
-      {'label': '萨姐的食谱', 'image': 'https://picsum.photos/seed/snow1/400/240'},
-      {'label': 'Taro', 'image': 'https://picsum.photos/seed/snow2/400/240'},
-    ],
-  };
-
+ 
   @override
   void dispose() {
     _sizeController.dispose();
@@ -174,11 +133,18 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-                 const SizedBox(height: 40),
+                 const SizedBox(height: 56),
+                 
               Text(
-    GreetingHelper.greeting(),
-    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-  ),
+                GreetingHelper.greeting(),
+                style: GoogleFonts.poppins(
+                  fontSize: 36,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                  color: Theme.of(context).textTheme.headlineLarge?.color,
+                ),
+              ),
+               const SizedBox(height: 20),
               Text(
                 AppStrings.get('addNewTask', lang),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -195,10 +161,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _selectedType == 'Cantonese-style'
                           ? Theme.of(context).colorScheme.primary
-                          : Colors.grey[300],
-                           shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16), // adjust radius
-    ),
+                          : Colors.white,
+                      side: BorderSide(
+                        color: _selectedType == 'Cantonese-style'
+                            ? Colors.transparent
+                            : Colors.grey.shade300,
+                      ),
                     ),
                     onPressed: () {
                       setState(() {
@@ -220,10 +188,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _selectedType == 'Snow skin'
                           ? Theme.of(context).colorScheme.primary
-                          : Colors.grey[300],
-                           shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16), // adjust radius
-    ),
+                          : Colors.white,
+                      side: BorderSide(
+                        color: _selectedType == 'Snow skin'
+                            ? Colors.transparent
+                            : Colors.grey.shade300,
+                      ),
                     ),
                     onPressed: () {
                       setState(() {
@@ -243,188 +213,100 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
               ),
-              if (_selectedType != null) ...[
-                const SizedBox(height: 24),
-                Text(AppStrings.get('selectRecipe', lang)),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: _recipeOptions[_selectedType]!
-                      .map(
-                        (option) => Expanded(
-                          child: Padding(
+              const SizedBox(height: 18),
+              Text(AppStrings.get('fillingType', lang)),
+              const SizedBox(height: 8),
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 6.0,
+                              horizontal: 8,
+                              vertical: 10,
                             ),
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 110,
-                                  child: Material(
-                                    borderRadius: BorderRadius.circular(12),
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(12),
-                                      onTap: () {
-                                        setState(() {
-                                          _selectedRecipe = option['label'];
-                                        });
-                                      },
-                                      child: Ink(
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          image: DecorationImage(
-                                            image: NetworkImage(
-                                              option['image']!,
-                                            ),
-                                            fit: BoxFit.cover,
-                                          ),
-                                          border: Border.all(
-                                            color:
-                                                _selectedRecipe ==
-                                                    option['label']
-                                                ? Theme.of(
-                                                    context,
-                                                  ).colorScheme.primary
-                                                : Colors.transparent,
-                                            width: 3,
-                                          ),
-                                        ),
-                                        child: Stack(
-                                          children: [
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                                gradient: LinearGradient(
-                                                  begin: Alignment.bottomCenter,
-                                                  end: Alignment.topCenter,
-                                                  colors: [
-                                                    Colors.black.withAlpha(140),
-                                                    Colors.transparent,
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            Align(
-                                              alignment: Alignment.bottomLeft,
-                                              child: Padding(
-                                                padding: const EdgeInsets.all(
-                                                  8.0,
-                                                ),
-                                                child: Text(
-                                                  option['label']!,
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => RecipeDetailsPage(
-                                          recipeName: option['label']!,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: Text(
-                                    AppStrings.get('viewDetails', lang),
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                      decoration: TextDecoration.underline,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            backgroundColor: _fillingType == 'Read Bean'
+                                ? Theme.of(context).colorScheme.primary
+                                : Colors.white,
+                          ),
+                          onPressed: () {
+                            setState(() => _fillingType = 'Read Bean');
+                          },
+                          child: Text(
+                            AppStrings.get('redBean', lang),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w300,
+                              color: _fillingType == 'Read Bean'
+                                  ? Colors.white
+                                  : Colors.black,
                             ),
                           ),
                         ),
-                      )
-                      .toList(),
-                ),
-              ],
-              const SizedBox(height: 24),
-              Text(AppStrings.get('fillingType', lang)),
-              const SizedBox(height: 8),
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _fillingType == 'Read Bean'
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey[300],
-                    ),
-                    onPressed: () {
-                      setState(() => _fillingType = 'Read Bean');
-                    },
-                    child: Text(
-                      AppStrings.get('readBean', lang),
-                      style: TextStyle(
-                        color: _fillingType == 'Read Bean'
-                            ? Colors.white
-                            : Colors.black,
                       ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _fillingType == 'Lotus Seed'
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey[300],
-                    ),
-                    onPressed: () {
-                      setState(() => _fillingType = 'Lotus Seed');
-                    },
-                    child: Text(
-                      AppStrings.get('lotusSeeds', lang),
-                      style: TextStyle(
-                        color: _fillingType == 'Lotus Seed'
-                            ? Colors.white
-                            : Colors.black,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 10,
+                            ),
+                            backgroundColor: _fillingType == 'Lotus Seed'
+                                ? Theme.of(context).colorScheme.primary
+                                : Colors.white,
+                          ),
+                          onPressed: () {
+                            setState(() => _fillingType = 'Lotus Seed');
+                          },
+                          child: Text(
+                            AppStrings.get('lotusSeeds', lang),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w300,
+                              color: _fillingType == 'Lotus Seed'
+                                  ? Colors.white
+                                  : Colors.black,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _fillingType == 'Five Nuts'
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey[300],
-                    ),
-                    onPressed: () {
-                      setState(() => _fillingType = 'Five Nuts');
-                    },
-                    child: Text(
-                      AppStrings.get('fiveNuts', lang),
-                      style: TextStyle(
-                        color: _fillingType == 'Five Nuts'
-                            ? Colors.white
-                            : Colors.black,
-                      ),
-                    ),
+                      if (_selectedType != 'Snow skin') ...[
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 10,
+                              ),
+                              backgroundColor: _fillingType == 'Five Nuts'
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.white,
+                            ),
+                            onPressed: () {
+                              setState(() => _fillingType = 'Five Nuts');
+                            },
+                            child: Text(
+                              AppStrings.get('fiveNuts', lang),
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w300,
+                                color: _fillingType == 'Five Nuts'
+                                    ? Colors.white
+                                    : Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 18),
               Text(AppStrings.get('pastryFillingRatio', lang)),
               const SizedBox(height: 8),
               Wrap(
@@ -437,7 +319,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _ratio == option
                             ? Theme.of(context).colorScheme.primary
-                            : Colors.grey[300],
+                            : Colors.white,
                       ),
                       onPressed: () {
                         setState(() {
@@ -453,20 +335,50 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                 ],
               ),
-              const SizedBox(height: 24),
-              Text(AppStrings.get('size', lang)),
-              const SizedBox(height: 8),
+
+              const SizedBox(height: 18),
+              Row(
+               
+                children: [
+                  Text(AppStrings.get('size', lang)),
+              const SizedBox(width: 12),
+
+                  SizedBox(
+                    width: 120,
+                    height:36,
+                    child: TextField(
+                      controller: _sizeController,
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                       // labelText: AppStrings.get('size', lang),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 4,
+                        ),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _size = int.tryParse(value) ?? _size;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),         
               Wrap(
                 alignment: WrapAlignment.center,
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (final option in [25, 35, 50, 75, 100])
+                  for (final option in [ 35, 50, 75, 100])
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _size == option
                             ? Theme.of(context).colorScheme.primary
-                            : Colors.grey[300],
+                            : Colors.white,
                       ),
                       onPressed: () {
                         setState(() {
@@ -483,29 +395,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                 ],
               ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: 120,
-                child: TextField(
-                  controller: _sizeController,
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: AppStrings.get('size', lang),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 8,
-                    ),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _size = int.tryParse(value) ?? _size;
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(height: 24),
+      
+              
+              const SizedBox(height: 18),
               Text(AppStrings.get('qty', lang)),
               const SizedBox(height: 8),
               Wrap(
@@ -523,14 +415,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   SizedBox(
                     width: 80,
+                    height: 36,
                     child: TextField(
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 8,
+                          horizontal: 4,
+                          vertical: 4,
                         ),
                       ),
                       controller: TextEditingController(
@@ -553,9 +446,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 18),
               const Divider(thickness: 2),
-              const SizedBox(height: 24),
+              const SizedBox(height: 18),
               Text(
                 AppStrings.get('calculate', lang),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
