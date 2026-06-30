@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../app_strings.dart';
 import '../language_provider.dart';
 import '../recipe_list.dart';
+import '../task_list_page.dart';
 
 class AppBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -14,6 +15,27 @@ class AppBottomNavigationBar extends StatelessWidget {
 
     if (index == 0) {
       Navigator.of(context).popUntil((route) => route.isFirst);
+      return;
+    }
+
+    if (index == 1) {
+      var foundTaskList = false;
+      Navigator.of(context).popUntil((route) {
+        if (route.settings.name == '/task_list') {
+          foundTaskList = true;
+          return true;
+        }
+        return route.isFirst;
+      });
+
+      if (!foundTaskList) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const TaskListPage(),
+            settings: const RouteSettings(name: '/task_list'),
+          ),
+        );
+      }
       return;
     }
 

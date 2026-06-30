@@ -36,7 +36,7 @@
   <recipe>
     <name>Red bean filling</name>
     <type>filling</type>
-    <filling_type>red bean</filling_type>
+    <filling_type>Red bean</filling_type>
     <description>Basic red bean filling recipe from internet</description>
     <ingredients>
       <ingredient name="Red bean (dry)" amount="168" unit="g"/>
@@ -51,7 +51,7 @@
   <recipe>
     <name>Five nuts filling</name>
     <type>filling</type>
-    <filling_type>five nuts</filling_type>
+    <filling_type>Five nuts</filling_type>
     <description>Traditional five nuts filling for moon cakes</description>
     <ingredients>
       <ingredient name="Mixed nuts" amount="240" unit="g"/>
