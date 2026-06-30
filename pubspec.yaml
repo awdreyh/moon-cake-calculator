@@ -1,5 +1,5 @@
 name: moon_cake_app
-description: "A new Flutter project."
+description: "An app to calculate your moon cake ingredients and manage your moon cake recipes."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -35,6 +35,10 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   xml: ^6.3.0
+  path_provider: ^2.0.17
+  provider: ^6.1.0
+  google_fonts: ^6.2.0
+  sqflite: ^2.4.3
 
 dev_dependencies:
   flutter_test:
@@ -46,6 +50,16 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3 # Use the latest version
+  sqflite_common_ffi: ^2.4.2
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: false
+  image_path: "assets/logo-foreground.png"
+
+  adaptive_icon_background: "assets/logo-background.png" # Or path to a background image: "assets/icons/background.png"
+  adaptive_icon_foreground: "assets/logo-foreground.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -88,3 +102,5 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+  assets:
+    - assets/

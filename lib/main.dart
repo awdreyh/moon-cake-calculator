@@ -1,39 +1,33 @@
 import 'package:flutter/material.dart';
-import 'list_page.dart';
-import 'recipe_details_page.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'utils/app_bottom_navigation.dart';
+import 'app_strings.dart';
+import 'language_provider.dart';
+
+import 'package:moon_cake_app/utils/greeting.dart';
+import 'package:flutter/services.dart';
+import 'theme/app_theme.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => LanguageProvider())],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
     return MaterialApp(
       title: 'Moon Cake Calculator',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(
-          seedColor: const Color.fromARGB(255, 183, 131, 58),
-        ),
-      ),
+      theme: AppTheme.lightTheme,
+      locale: languageProvider.locale,
       home: const MyHomePage(title: 'Moon Cake Calculator'),
     );
   }
@@ -47,8 +41,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  int _currentNavIndex = 0;
+  //int _counter = 0;
+  final int _currentNavIndex = 0;
   String? _selectedType = 'Cantonese-style';
   String? _fillingType;
   String? _selectedRecipe;
@@ -59,51 +53,157 @@ class _MyHomePageState extends State<MyHomePage> {
     text: '100',
   );
 
-  final Map<String, List<Map<String, String>>> _recipeOptions = {
-    'Cantonese-style': [
-      {
-        'label': '老爸的食光',
-        'image': 'https://picsum.photos/seed/canto1/400/240',
-        'flour': '50.7%',
-        'vegetableOil': '13.4%',
-        'syrup': '35.8%',
-      },
-      {
-        'label': '萨姐的食谱',
-        'image': 'https://picsum.photos/seed/canto2/400/240',
-        'flour': '50.7%',
-        'vegetableOil': '13.4%',
-        'syrup': '35.8%',
-      },
-    ],
-    'Snow skin': [
-      {'label': '萨姐的食谱', 'image': 'https://picsum.photos/seed/snow1/400/240'},
-      {'label': 'Taro', 'image': 'https://picsum.photos/seed/snow2/400/240'},
-    ],
-  };
-
   @override
   void dispose() {
     _sizeController.dispose();
     super.dispose();
   }
 
-  void _incrementCounter() {
-    setState(() {
+  Widget _buildDoughStyleImageButton(
+    String label,
+    String value,
+    String assetName,
+  ) {
+    final selected = _selectedType == value;
+    final imageAsset = 'assets/${assetName}${selected ? '2' : ''}.jpg';
 
-      _counter--;
-    });
+    return SizedBox(
+      width: 160,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () {
+          setState(() {
+            _selectedType = value;
+            _selectedRecipe = null;
+          });
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: selected
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey.shade300,
+              width: selected ? 2 : 1,
+            ),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.16),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(14),
+                ),
+                child: Image.asset(imageAsset, height: 100, fit: BoxFit.cover),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.white,
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(14),
+                  ),
+                ),
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: selected ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final lang = languageProvider.languageCode;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+        //title: Text(widget.title),
+        toolbarHeight: 32,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: const Color.fromARGB(
+            255,
+            154,
+            10,
+            10,
+          ), // background of the top bar
+          statusBarIconBrightness: Brightness.dark, // icons become white
+        ),
 
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
-        title: Text(widget.title),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.language),
+            onSelected: (String value) {
+              languageProvider.setLanguage(value);
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              PopupMenuItem<String>(
+                value: 'en',
+                child: Row(
+                  children: [
+                    Radio<String>(
+                      value: 'en',
+                      groupValue: lang,
+                      onChanged: (value) {
+                        Navigator.pop(context);
+                        languageProvider.setLanguage(value!);
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    Text(AppStrings.get('english', lang)),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'zh',
+                child: Row(
+                  children: [
+                    Radio<String>(
+                      value: 'zh',
+                      groupValue: lang,
+                      onChanged: (value) {
+                        Navigator.pop(context);
+                        languageProvider.setLanguage(value!);
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    Text(AppStrings.get('chinese', lang)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -111,261 +211,140 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('You have pushed the button this many times:'),
+              const SizedBox(height: 56),
+
               Text(
-                '$_counter',
-                style: Theme.of(context).textTheme.headlineMedium,
+                GreetingHelper.greeting(),
+                style: GoogleFonts.poppins(
+                  fontSize: 36,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                  color: Theme.of(context).textTheme.headlineLarge?.color,
+                ),
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const ListPage()),
-                  );
-                },
-                child: const Text('Go to List'),
-              ),
-              const SizedBox(height: 40),
-              const Text(
-                'Add new task',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              const SizedBox(height: 20),
+              Text(
+                AppStrings.get('addNewTask', lang),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 12),
-              const Text('Type'),
+              // Text(AppStrings.get('type', lang)),
               const SizedBox(height: 8),
               Wrap(
                 alignment: WrapAlignment.center,
                 spacing: 12,
                 runSpacing: 8,
                 children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedType == 'Cantonese-style'
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey[300],
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _selectedType = 'Cantonese-style';
-                        _selectedRecipe = null;
-                      });
-                    },
-                    child: Text(
-                      'Cantonese-style',
-                      style: TextStyle(
-                        color: _selectedType == 'Cantonese-style'
-                            ? Colors.white
-                            : Colors.black,
-                      ),
-                    ),
+                  _buildDoughStyleImageButton(
+                    AppStrings.get('cantonese', lang),
+                    'Cantonese-style',
+                    'cantoneseStyle',
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedType == 'Snow skin'
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey[300],
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _selectedType = 'Snow skin';
-                        _selectedRecipe = null;
-                      });
-                    },
-                    child: Text(
-                      'Snow skin',
-                      style: TextStyle(
-                        color: _selectedType == 'Snow skin'
-                            ? Colors.white
-                            : Colors.black,
-                      ),
-                    ),
+                  _buildDoughStyleImageButton(
+                    AppStrings.get('snowSkin', lang),
+                    'Snow skin',
+                    'snowSkin',
                   ),
                 ],
               ),
-              if (_selectedType != null) ...[
-                const SizedBox(height: 24),
-                const Text('Select recipe'),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: _recipeOptions[_selectedType]!
-                      .map(
-                        (option) => Expanded(
-                          child: Padding(
+              const SizedBox(height: 18),
+              Text(AppStrings.get('fillingType', lang)),
+              const SizedBox(height: 8),
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 6.0,
+                              horizontal: 8,
+                              vertical: 10,
                             ),
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 110,
-                                  child: Material(
-                                    borderRadius: BorderRadius.circular(12),
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(12),
-                                      onTap: () {
-                                        setState(() {
-                                          _selectedRecipe = option['label'];
-                                        });
-                                      },
-                                      child: Ink(
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          image: DecorationImage(
-                                            image: NetworkImage(
-                                              option['image']!,
-                                            ),
-                                            fit: BoxFit.cover,
-                                          ),
-                                          border: Border.all(
-                                            color:
-                                                _selectedRecipe ==
-                                                    option['label']
-                                                ? Theme.of(
-                                                    context,
-                                                  ).colorScheme.primary
-                                                : Colors.transparent,
-                                            width: 3,
-                                          ),
-                                        ),
-                                        child: Stack(
-                                          children: [
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                                gradient: LinearGradient(
-                                                  begin: Alignment.bottomCenter,
-                                                  end: Alignment.topCenter,
-                                                  colors: [
-                                                    Colors.black.withAlpha(140),
-                                                    Colors.transparent,
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            Align(
-                                              alignment: Alignment.bottomLeft,
-                                              child: Padding(
-                                                padding: const EdgeInsets.all(
-                                                  8.0,
-                                                ),
-                                                child: Text(
-                                                  option['label']!,
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => RecipeDetailsPage(
-                                          recipeName: option['label']!,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: Text(
-                                    'View Details',
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                      decoration: TextDecoration.underline,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            backgroundColor: _fillingType == 'Read Bean'
+                                ? Theme.of(context).colorScheme.primary
+                                : Colors.white,
+                          ),
+                          onPressed: () {
+                            setState(() => _fillingType = 'Read Bean');
+                          },
+                          child: Text(
+                            AppStrings.get('redBean', lang),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w300,
+                              color: _fillingType == 'Read Bean'
+                                  ? Colors.white
+                                  : Colors.black,
                             ),
                           ),
                         ),
-                      )
-                      .toList(),
-                ),
-              ],
-              const SizedBox(height: 24),
-              const Text('Filling type'),
-              const SizedBox(height: 8),
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _fillingType == 'Read Bean'
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey[300],
-                    ),
-                    onPressed: () {
-                      setState(() => _fillingType = 'Read Bean');
-                    },
-                    child: Text(
-                      'Read Bean',
-                      style: TextStyle(
-                        color: _fillingType == 'Read Bean'
-                            ? Colors.white
-                            : Colors.black,
                       ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _fillingType == 'Lotus Seed'
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey[300],
-                    ),
-                    onPressed: () {
-                      setState(() => _fillingType = 'Lotus Seed');
-                    },
-                    child: Text(
-                      'Lotus Seed',
-                      style: TextStyle(
-                        color: _fillingType == 'Lotus Seed'
-                            ? Colors.white
-                            : Colors.black,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 10,
+                            ),
+                            backgroundColor: _fillingType == 'Lotus Seed'
+                                ? Theme.of(context).colorScheme.primary
+                                : Colors.white,
+                          ),
+                          onPressed: () {
+                            setState(() => _fillingType = 'Lotus Seed');
+                          },
+                          child: Text(
+                            AppStrings.get('lotusSeeds', lang),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w300,
+                              color: _fillingType == 'Lotus Seed'
+                                  ? Colors.white
+                                  : Colors.black,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _fillingType == 'Five Nuts'
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey[300],
-                    ),
-                    onPressed: () {
-                      setState(() => _fillingType = 'Five Nuts');
-                    },
-                    child: Text(
-                      'Five Nuts',
-                      style: TextStyle(
-                        color: _fillingType == 'Five Nuts'
-                            ? Colors.white
-                            : Colors.black,
-                      ),
-                    ),
+                      if (_selectedType != 'Snow skin') ...[
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 10,
+                              ),
+                              backgroundColor: _fillingType == 'Five Nuts'
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.white,
+                            ),
+                            onPressed: () {
+                              setState(() => _fillingType = 'Five Nuts');
+                            },
+                            child: Text(
+                              AppStrings.get('fiveNuts', lang),
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w300,
+                                color: _fillingType == 'Five Nuts'
+                                    ? Colors.white
+                                    : Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-              const Text('Pastry/Filling Ratio'),
+              const SizedBox(height: 18),
+              Text(AppStrings.get('pastryFillingRatio', lang)),
               const SizedBox(height: 8),
               Wrap(
                 alignment: WrapAlignment.center,
@@ -377,7 +356,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _ratio == option
                             ? Theme.of(context).colorScheme.primary
-                            : Colors.grey[300],
+                            : Colors.white,
                       ),
                       onPressed: () {
                         setState(() {
@@ -393,20 +372,49 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                 ],
               ),
-              const SizedBox(height: 24),
-              const Text('Size (g)'),
-              const SizedBox(height: 8),
+
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Text(AppStrings.get('size', lang)),
+                  const SizedBox(width: 12),
+
+                  SizedBox(
+                    width: 120,
+                    height: 36,
+                    child: TextField(
+                      controller: _sizeController,
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        // labelText: AppStrings.get('size', lang),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 4,
+                        ),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _size = int.tryParse(value) ?? _size;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
               Wrap(
                 alignment: WrapAlignment.center,
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (final option in [25, 35, 50, 75, 100])
+                  for (final option in [35, 50, 75, 100])
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _size == option
                             ? Theme.of(context).colorScheme.primary
-                            : Colors.grey[300],
+                            : Colors.white,
                       ),
                       onPressed: () {
                         setState(() {
@@ -423,30 +431,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                 ],
               ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: 120,
-                child: TextField(
-                  controller: _sizeController,
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Size (g)',
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 8,
-                    ),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _size = int.tryParse(value) ?? _size;
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Text('Qty'),
+
+              const SizedBox(height: 18),
+              Text(AppStrings.get('qty', lang)),
               const SizedBox(height: 8),
               Wrap(
                 alignment: WrapAlignment.center,
@@ -463,14 +450,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   SizedBox(
                     width: 80,
+                    height: 36,
                     child: TextField(
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 8,
+                          horizontal: 4,
+                          vertical: 4,
                         ),
                       ),
                       controller: TextEditingController(
@@ -493,12 +481,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 18),
               const Divider(thickness: 2),
-              const SizedBox(height: 24),
-              const Text(
-                'Calculate',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              const SizedBox(height: 18),
+              Text(
+                AppStrings.get('calculate', lang),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 16),
               Container(
@@ -512,7 +503,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Total Weight:'),
+                        Text(AppStrings.get('totalWeight', lang)),
                         Text(
                           '${_size * _quantity}g',
                           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -532,35 +523,20 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Colors.grey[600],
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: _incrementCounter,
+      //   tooltip: 'Increment',
+      //   child: const Icon(Icons.add),
+      // ),
+      bottomNavigationBar: AppBottomNavigationBar(
         currentIndex: _currentNavIndex,
-        onTap: (index) {
-          setState(() {
-            _currentNavIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.task_alt), label: 'Tasks'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant),
-            label: 'Recipes',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
       ),
     );
   }
 
   List<Widget> _buildRatioBreakdown() {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final lang = languageProvider.languageCode;
     final totalWeight = _size * _quantity;
     final parts = _ratio!.split(':');
     final pastryPart = int.parse(parts[0]);
@@ -576,7 +552,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Pastry Weight:'),
+          Text(AppStrings.get('pastryWeight', lang)),
           Text(
             '${pastryWeight}g',
             style: const TextStyle(fontWeight: FontWeight.bold),
@@ -587,7 +563,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Filling Weight:'),
+          Text(AppStrings.get('fillingWeight', lang)),
           Text(
             '${fillingWeight}g',
             style: const TextStyle(fontWeight: FontWeight.bold),

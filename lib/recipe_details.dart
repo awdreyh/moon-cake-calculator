@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'utils/app_bottom_navigation.dart';
 
 class RecipeDetailsPage extends StatelessWidget {
   final String recipeName;
@@ -65,8 +66,10 @@ class RecipeDetailsPage extends StatelessWidget {
               ),
             ],
           ),
+       
         ),
       ),
+       bottomNavigationBar: const AppBottomNavigationBar(currentIndex: 2),
     );
   }
 }
