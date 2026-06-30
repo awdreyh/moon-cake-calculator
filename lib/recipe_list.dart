@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'app_bottom_navigation.dart';
+import 'utils/app_bottom_navigation.dart';
 import 'recipe.dart';
 import 'recipe_service.dart';
 import 'add_recipe_page.dart';
@@ -55,6 +55,23 @@ class _RecipeListPageState extends State<RecipeListPage> {
           return ListView(
             padding: const EdgeInsets.symmetric(vertical: 8),
             children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'All recipes here are based on 8x100g 4:6 cakes.',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      '所有食谱基于8x100g 4:6月饼。',
+                      style: TextStyle(fontSize: 13, color: Colors.black54),
+                    ),
+                  ],
+                ),
+              ),
               _buildCategorySection('Dough', doughRecipes),
               _buildCategorySection('Filling', fillingRecipes),
             ],
@@ -72,9 +89,10 @@ class _RecipeListPageState extends State<RecipeListPage> {
               _recipesFuture = _recipeService.loadRecipes();
             });
           }
-        },
-        child: const Icon(Icons.add),
+        }, 
         tooltip: 'Add Recipe',
+        child: const Icon(Icons.add),
+       
       ),
       bottomNavigationBar: const AppBottomNavigationBar(currentIndex: 2),
     );

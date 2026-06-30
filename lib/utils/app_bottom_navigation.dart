@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'app_strings.dart';
-import 'language_provider.dart';
-import 'recipe_list.dart';
+import '../app_strings.dart';
+import '../language_provider.dart';
+import '../recipe_list.dart';
 
 class AppBottomNavigationBar extends StatelessWidget {
   final int currentIndex;

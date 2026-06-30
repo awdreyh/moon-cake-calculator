@@ -2,19 +2,17 @@
 <recipes>
   <!-- Dough Recipe -->
   <recipe>
-    <name>Cantonese style moon cake dough</name>
+    <name>Basic Cantonese style moon cake dough</name>
     <type>dough</type>
     <style>Cantonese style</style>
-    <description>Traditional Cantonese moon cake dough</description>
+    <description>This is a basic cantonese style moon cake dough recipet</description>
     <ingredients>
-      <ingredient name="flour" amount="200" unit="g"/>
-      <ingredient name="syrup" amount="150" unit="g"/>
-      <ingredient name="lye water" amount="2" unit="g"/>
-      <ingredient name="oil" amount="30" unit="g"/>
-      <ingredient name="flour" amount="30" unit="g"/>
-      <ingredient name="syrup" amount="30" unit="g"/>
-      <ingredient name="lye water" amount="0.5" unit="g"/>
+      <ingredient name="Flour" amount="162" unit="g"/>
+      <ingredient name="Syrup" amount="114" unit="g"/>     
+      <ingredient name="Oil" amount="44" unit="g"/>
+       <ingredient name="Lye water" amount="2" unit="g"/>
     </ingredients>
+    <url>n/a</url>
   </recipe>
 
   <!-- Snow Skin Dough Recipe -->
@@ -22,13 +20,16 @@
     <name>Snow skin moon cake dough</name>
     <type>dough</type>
     <style>Snow skin</style>
-    <description>Snow skin moon cake dough</description>
+    <description>This is a basic snow skin moon cake dough recipe</description>
     <ingredients>
-      <ingredient name="glutinous rice flour" amount="100" unit="g"/>
-      <ingredient name="powder sugar" amount="50" unit="g"/>
-      <ingredient name="milk" amount="50" unit="ml"/>
-      <ingredient name="butter" amount="20" unit="g"/>
+      <ingredient name="Glutinous rice flour" amount="41" unit="g"/>
+      <ingredient name="Wheat flour" amount="26" unit="g"/>
+      <ingredient name="Rice flour" amount="34" unit="g"/>
+      <ingredient name="Powder sugar" amount="25" unit="g"/>
+      <ingredient name="Milk" amount="172" unit="g"/>
+      <ingredient name="Butter or oil" amount="25" unit="g"/>
     </ingredients>
+    <url>n/a</url>
   </recipe>
 
   <!-- Filling Recipes -->
@@ -36,27 +37,16 @@
     <name>Red bean filling</name>
     <type>filling</type>
     <filling_type>red bean</filling_type>
-    <description>Traditional red bean filling for moon cakes</description>
+    <description>Basic red bean filling recipe from internet</description>
     <ingredients>
-      <ingredient name="red bean (dry)" amount="500" unit="g"/>
-      <ingredient name="syrup" amount="1" unit="g"/>
-      <ingredient name="sugar" amount="30" unit="g"/>
-      <ingredient name="oil" amount="30" unit="g"/>
+      <ingredient name="Red bean (dry)" amount="168" unit="g"/>
+      <ingredient name="Syrup" amount="33" unit="g"/>
+      <ingredient name="Sugar" amount="33" unit="g"/>
+      <ingredient name="Oil" amount="33" unit="g"/>
     </ingredients>
+    <url>n/a</url>
   </recipe>
 
-  <recipe>
-    <name>Lotus seed filling</name>
-    <type>filling</type>
-    <filling_type>lotus seed</filling_type>
-    <description>Traditional lotus seed filling for moon cakes</description>
-    <ingredients>
-      <ingredient name="lotus seed (dry)" amount="400" unit="g"/>
-      <ingredient name="sugar" amount="30" unit="g"/>
-      <ingredient name="oil" amount="30" unit="g"/>
-      <ingredient name="syrup" amount="0.5" unit="g"/>
-    </ingredients>
-  </recipe>
 
   <recipe>
     <name>Five nuts filling</name>
@@ -64,12 +54,13 @@
     <filling_type>five nuts</filling_type>
     <description>Traditional five nuts filling for moon cakes</description>
     <ingredients>
-      <ingredient name="mixed nuts" amount="300" unit="g"/>
-      <ingredient name="mixed dried fruits" amount="40" unit="g"/>
-      <ingredient name="oil" amount="20" unit="g"/>
-      <ingredient name="syrup" amount="20" unit="g"/>
-      <ingredient name="sugar" amount="1" unit="g"/>
-      <ingredient name="other" amount="1" unit="g"/>
+      <ingredient name="Mixed nuts" amount="240" unit="g"/>
+      <ingredient name="Mixed dried fruits" amount="80" unit="g"/>
+      <ingredient name="Flour" amount="67" unit="g"/>
+      <ingredient name="Oil" amount="80" unit="g"/>
+      <ingredient name="Syrup" amount="60" unit="g"/>     
+  
     </ingredients>
+    <url>n/a</url>
   </recipe>
 </recipes>

@@ -1,105 +1,165 @@
 import 'dart:io';
 
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:path_provider/path_provider.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:xml/xml.dart';
 import 'recipe.dart';
 
-class _LoadResult {
-  final String xml;
-  final bool createdFile;
-
-  const _LoadResult({required this.xml, required this.createdFile});
-}
-
 class RecipeService {
+  RecipeService({String? databaseName}) : _databaseName = databaseName ?? 'recipes.db';
+
+  static Database? _database;
+  final String _databaseName;
+
   Future<List<Recipe>> loadRecipes() async {
-    final loadResult = await _loadRecipesXml();
-    final document = XmlDocument.parse(loadResult.xml);
+    final database = await _databaseInstance();
+    final recipeMaps = await database.query('recipes', orderBy: 'id');
 
-    final recipeNodes = document.findAllElements('recipe');
-
-    return recipeNodes.map((node) {
-      final ingredients = node
-          .findElements('ingredients')
-          .first
-          .findElements('ingredient')
-          .map((i) => Ingredient(
-                name: i.getAttribute('name')!,
-                amount: double.parse(i.getAttribute('amount')!),
-                unit: i.getAttribute('unit')!,
-              ))
-          .toList();
-
-      return Recipe(
-        name: node.findElements('name').first.innerText,
-        type: node.findElements('type').first.innerText,
-        style: node.findElements('style').isNotEmpty
-            ? node.findElements('style').first.innerText
-            : null,
-        fillingType: node.findElements('filling_type').isNotEmpty
-            ? node.findElements('filling_type').first.innerText
-            : null,
-        description: node.findElements('description').first.innerText,
-        ingredients: ingredients,
+    final recipes = <Recipe>[];
+    for (final recipeMap in recipeMaps) {
+      final ingredientMaps = await database.query(
+        'recipe_ingredients',
+        where: 'recipe_id = ?',
+        whereArgs: [recipeMap['id']],
+        orderBy: 'id',
       );
-    }).toList();
+
+      recipes.add(
+        Recipe(
+          name: recipeMap['name'] as String,
+          type: recipeMap['type'] as String,
+          style: recipeMap['style'] as String?,
+          fillingType: recipeMap['filling_type'] as String?,
+          description: recipeMap['description'] as String,
+          ingredients: ingredientMaps.map((ingredientMap) {
+            return Ingredient(
+              name: ingredientMap['name'] as String,
+              amount: (ingredientMap['amount'] as num).toDouble(),
+              unit: ingredientMap['unit'] as String,
+            );
+          }).toList(),
+          isFavorite: (recipeMap['is_favorite'] as int) == 1,
+          rating: (recipeMap['rating'] as num).toDouble(),
+        ),
+      );
+    }
+
+    return recipes;
   }
 
   Future<String?> saveRecipe(Recipe recipe) async {
-    final loadResult = await _loadRecipesXml();
-    final document = XmlDocument.parse(loadResult.xml);
-    final root = document.rootElement;
+    final database = await _databaseInstance();
 
-    final ingredientNodes = recipe.ingredients.map((ingredient) {
-      return XmlElement(
-        XmlName('ingredient'),
-        [
-          XmlAttribute(XmlName('name'), ingredient.name),
-          XmlAttribute(XmlName('amount'), ingredient.amount.toString()),
-          XmlAttribute(XmlName('unit'), ingredient.unit),
-        ],
-      );
-    }).toList();
+    final recipeId = await database.insert('recipes', {
+      'name': recipe.name,
+      'type': recipe.type,
+      'style': recipe.style,
+      'filling_type': recipe.fillingType,
+      'description': recipe.description,
+      'is_favorite': recipe.isFavorite ? 1 : 0,
+      'rating': recipe.rating,
+    });
 
-    final recipeNode = XmlElement(
-      XmlName('recipe'),
-      [],
-      [
-        XmlElement(XmlName('name'), [], [XmlText(recipe.name)]),
-        XmlElement(XmlName('type'), [], [XmlText(recipe.type)]),
-        if (recipe.type.toLowerCase() == 'dough' && recipe.style != null)
-          XmlElement(XmlName('style'), [], [XmlText(recipe.style!)]),
-        if (recipe.type.toLowerCase() == 'filling' && recipe.fillingType != null)
-          XmlElement(XmlName('filling_type'), [], [XmlText(recipe.fillingType!)]),
-        XmlElement(XmlName('description'), [], [XmlText(recipe.description)]),
-        XmlElement(XmlName('ingredients'), [], ingredientNodes),
-      ],
-    );
-
-    root.children.add(XmlText('\n  '));
-    root.children.add(recipeNode);
-    root.children.add(XmlText('\n'));
-
-    final formattedXml = document.toXmlString(pretty: true, indent: '  ');
-    final file = await _recipesFile();
-    await file.writeAsString(formattedXml);
-    return loadResult.createdFile ? 'Created local recipes file.' : null;
-  }
-
-  Future<_LoadResult> _loadRecipesXml() async {
-    final file = await _recipesFile();
-    if (await file.exists()) {
-      return _LoadResult(xml: await file.readAsString(), createdFile: false);
+    for (final ingredient in recipe.ingredients) {
+      await database.insert('recipe_ingredients', {
+        'recipe_id': recipeId,
+        'name': ingredient.name,
+        'amount': ingredient.amount,
+        'unit': ingredient.unit,
+      });
     }
 
-    final initialXml = await rootBundle.loadString('assets/recipes.xml');
-    await file.writeAsString(initialXml);
-    return _LoadResult(xml: initialXml, createdFile: true);
+    return null;
   }
 
-  Future<File> _recipesFile() async {
-    final directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}${Platform.pathSeparator}recipes.xml');
+  Future<Database> _databaseInstance() async {
+    if (_database != null) {
+      return _database!;
+    }
+
+    final databaseDirectory = await getDatabasesPath();
+    final databasePath = '${databaseDirectory}${Platform.pathSeparator}$_databaseName';
+
+    _database = await openDatabase(
+      databasePath,
+      version: 2,
+      onCreate: (db, version) async {
+        await db.execute('''
+          CREATE TABLE recipes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            type TEXT NOT NULL,
+            style TEXT,
+            filling_type TEXT,
+            description TEXT NOT NULL,
+            is_favorite INTEGER NOT NULL DEFAULT 0,
+            rating REAL NOT NULL DEFAULT 0
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE recipe_ingredients (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            recipe_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            amount REAL NOT NULL,
+            unit TEXT NOT NULL,
+            FOREIGN KEY (recipe_id) REFERENCES recipes (id) ON DELETE CASCADE
+          )
+        ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('ALTER TABLE recipes ADD COLUMN is_favorite INTEGER NOT NULL DEFAULT 0');
+          await db.execute('ALTER TABLE recipes ADD COLUMN rating REAL NOT NULL DEFAULT 0');
+        }
+      },
+    );
+
+    await _seedFromXmlIfNeeded(_database!);
+    return _database!;
+  }
+
+  Future<void> _seedFromXmlIfNeeded(Database database) async {
+    final count = Sqflite.firstIntValue(
+      await database.rawQuery('SELECT COUNT(*) FROM recipes'),
+    );
+
+    if (count != null && count > 0) {
+      return;
+    }
+
+    final xml = await rootBundle.loadString('assets/recipes.xml');
+    final document = XmlDocument.parse(xml);
+    final recipeNodes = document.findAllElements('recipe');
+
+    for (final node in recipeNodes) {
+      final recipeId = await database.insert('recipes', {
+        'name': node.findElements('name').first.innerText,
+        'type': node.findElements('type').first.innerText,
+        'style': node.findElements('style').isNotEmpty
+            ? node.findElements('style').first.innerText
+            : null,
+        'filling_type': node.findElements('filling_type').isNotEmpty
+            ? node.findElements('filling_type').first.innerText
+            : null,
+        'description': node.findElements('description').first.innerText,
+        'is_favorite': 0,
+        'rating': 0,
+      });
+
+      final ingredientNodes = node
+          .findElements('ingredients')
+          .first
+          .findElements('ingredient');
+
+      for (final ingredientNode in ingredientNodes) {
+        await database.insert('recipe_ingredients', {
+          'recipe_id': recipeId,
+          'name': ingredientNode.getAttribute('name')!,
+          'amount': double.parse(ingredientNode.getAttribute('amount')!),
+          'unit': ingredientNode.getAttribute('unit')!,
+        });
+      }
+    }
   }
 }

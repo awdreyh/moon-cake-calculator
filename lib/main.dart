@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'app_bottom_navigation.dart';
+import 'utils/app_bottom_navigation.dart';
 import 'app_strings.dart';
 import 'language_provider.dart';
 
@@ -12,9 +12,7 @@ import 'theme/app_theme.dart';
 void main() {
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => LanguageProvider()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => LanguageProvider())],
       child: const MyApp(),
     ),
   );
@@ -27,7 +25,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final languageProvider = Provider.of<LanguageProvider>(context);
     return MaterialApp(
-      
       title: 'Moon Cake Calculator',
       theme: AppTheme.lightTheme,
       locale: languageProvider.locale,
@@ -56,11 +53,87 @@ class _MyHomePageState extends State<MyHomePage> {
     text: '100',
   );
 
- 
   @override
   void dispose() {
     _sizeController.dispose();
     super.dispose();
+  }
+
+  Widget _buildDoughStyleImageButton(
+    String label,
+    String value,
+    String assetName,
+  ) {
+    final selected = _selectedType == value;
+    final imageAsset = 'assets/${assetName}${selected ? '2' : ''}.jpg';
+
+    return SizedBox(
+      width: 160,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () {
+          setState(() {
+            _selectedType = value;
+            _selectedRecipe = null;
+          });
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: selected
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey.shade300,
+              width: selected ? 2 : 1,
+            ),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.16),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(14),
+                ),
+                child: Image.asset(imageAsset, height: 100, fit: BoxFit.cover),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.white,
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(14),
+                  ),
+                ),
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: selected ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -69,19 +142,24 @@ class _MyHomePageState extends State<MyHomePage> {
     final lang = languageProvider.languageCode;
 
     return Scaffold(
-       extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-  surfaceTintColor: Colors.transparent,
-  scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         //title: Text(widget.title),
-         toolbarHeight: 32, 
-         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: const Color.fromARGB(255, 154, 10, 10), // background of the top bar
+        toolbarHeight: 32,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: const Color.fromARGB(
+            255,
+            154,
+            10,
+            10,
+          ), // background of the top bar
           statusBarIconBrightness: Brightness.dark, // icons become white
-),
-         
+        ),
+
         actions: [
           PopupMenuButton<String>(
             icon: const Icon(Icons.language),
@@ -133,8 +211,8 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-                 const SizedBox(height: 56),
-                 
+              const SizedBox(height: 56),
+
               Text(
                 GreetingHelper.greeting(),
                 style: GoogleFonts.poppins(
@@ -144,72 +222,31 @@ class _MyHomePageState extends State<MyHomePage> {
                   color: Theme.of(context).textTheme.headlineLarge?.color,
                 ),
               ),
-               const SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text(
                 AppStrings.get('addNewTask', lang),
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 12),
-             // Text(AppStrings.get('type', lang)),
+              // Text(AppStrings.get('type', lang)),
               const SizedBox(height: 8),
               Wrap(
                 alignment: WrapAlignment.center,
                 spacing: 12,
                 runSpacing: 8,
                 children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedType == 'Cantonese-style'
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.white,
-                      side: BorderSide(
-                        color: _selectedType == 'Cantonese-style'
-                            ? Colors.transparent
-                            : Colors.grey.shade300,
-                      ),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _selectedType = 'Cantonese-style';
-                        _selectedRecipe = null;
-                      });
-                    },
-                    child: Text(
-                      AppStrings.get('cantonese', lang),
-                      style: TextStyle(
-                        color: _selectedType == 'Cantonese-style'
-                            ? Colors.white
-                            : Colors.black,
-                            fontWeight: FontWeight.w300,
-                      ),
-                    ),
+                  _buildDoughStyleImageButton(
+                    AppStrings.get('cantonese', lang),
+                    'Cantonese-style',
+                    'cantoneseStyle',
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedType == 'Snow skin'
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.white,
-                      side: BorderSide(
-                        color: _selectedType == 'Snow skin'
-                            ? Colors.transparent
-                            : Colors.grey.shade300,
-                      ),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _selectedType = 'Snow skin';
-                        _selectedRecipe = null;
-                      });
-                    },
-                    child: Text(
-                      AppStrings.get('snowSkin', lang),
-                      style: TextStyle(
-                        color: _selectedType == 'Snow skin'
-                            ? Colors.white
-                            : Colors.black,
-                            fontWeight: FontWeight.w300,
-                      ),
-                    ),
+                  _buildDoughStyleImageButton(
+                    AppStrings.get('snowSkin', lang),
+                    'Snow skin',
+                    'snowSkin',
                   ),
                 ],
               ),
@@ -338,21 +375,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
               const SizedBox(height: 18),
               Row(
-               
                 children: [
                   Text(AppStrings.get('size', lang)),
-              const SizedBox(width: 12),
+                  const SizedBox(width: 12),
 
                   SizedBox(
                     width: 120,
-                    height:36,
+                    height: 36,
                     child: TextField(
                       controller: _sizeController,
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
-                       // labelText: AppStrings.get('size', lang),
+                        // labelText: AppStrings.get('size', lang),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 4,
                           vertical: 4,
@@ -367,13 +403,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 18),         
+              const SizedBox(height: 18),
               Wrap(
                 alignment: WrapAlignment.center,
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (final option in [ 35, 50, 75, 100])
+                  for (final option in [35, 50, 75, 100])
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _size == option
@@ -395,8 +431,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                 ],
               ),
-      
-              
+
               const SizedBox(height: 18),
               Text(AppStrings.get('qty', lang)),
               const SizedBox(height: 8),
@@ -451,7 +486,10 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(height: 18),
               Text(
                 AppStrings.get('calculate', lang),
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 16),
               Container(
@@ -490,7 +528,9 @@ class _MyHomePageState extends State<MyHomePage> {
       //   tooltip: 'Increment',
       //   child: const Icon(Icons.add),
       // ),
-      bottomNavigationBar: AppBottomNavigationBar(currentIndex: _currentNavIndex),
+      bottomNavigationBar: AppBottomNavigationBar(
+        currentIndex: _currentNavIndex,
+      ),
     );
   }
 

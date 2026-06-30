@@ -17,6 +17,8 @@ class Recipe {
   final String? fillingType;
   final String description;
   final List<Ingredient> ingredients;
+  final bool isFavorite;
+  final double rating;
 
   Recipe({
     required this.name,
@@ -25,5 +27,7 @@ class Recipe {
     this.fillingType,
     required this.description,
     required this.ingredients,
+    this.isFavorite = false,
+    this.rating = 0.0,
   });
 }

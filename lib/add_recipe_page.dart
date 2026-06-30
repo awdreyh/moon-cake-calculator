@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'recipe.dart';
 import 'recipe_service.dart';
-import 'app_bottom_navigation.dart';
+import 'utils/app_bottom_navigation.dart';
 
 class AddRecipePage extends StatefulWidget {
   const AddRecipePage({super.key});
@@ -15,8 +15,8 @@ class _IngredientInput {
   final TextEditingController amountController;
 
   _IngredientInput({String name = '', String amount = ''})
-      : nameController = TextEditingController(text: name),
-        amountController = TextEditingController(text: amount);
+    : nameController = TextEditingController(text: name),
+      amountController = TextEditingController(text: amount);
 
   void dispose() {
     nameController.dispose();
@@ -35,6 +35,8 @@ class _AddRecipePageState extends State<AddRecipePage> {
   );
   String _recipeType = 'Dough';
   String _doughStyle = 'Cantonese style';
+  bool _isFavorite = false;
+  double _rating = 0.0;
   bool _isSaving = false;
 
   @override
@@ -45,6 +47,70 @@ class _AddRecipePageState extends State<AddRecipePage> {
       ingredient.dispose();
     }
     super.dispose();
+  }
+
+  Widget _buildDoughStyleImageButton(
+    String title,
+    String styleValue,
+    String assetName,
+  ) {
+    final selected = _doughStyle == styleValue;
+    final imageAsset = 'assets/${assetName}${selected ? '2' : ''}.jpg';
+
+    return Expanded(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () {
+          setState(() {
+            _doughStyle = styleValue;
+          });
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: selected
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey.shade300,
+              width: selected ? 2 : 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(14),
+                ),
+                child: Image.asset(imageAsset, height: 100, fit: BoxFit.cover),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.white,
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(14),
+                  ),
+                ),
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: selected ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _addIngredient() {
@@ -69,11 +135,13 @@ class _AddRecipePageState extends State<AddRecipePage> {
 
     final ingredients = _ingredients
         .where((input) => input.nameController.text.trim().isNotEmpty)
-        .map((input) => Ingredient(
-              name: input.nameController.text.trim(),
-              amount: double.parse(input.amountController.text.trim()),
-              unit: 'g',
-            ))
+        .map(
+          (input) => Ingredient(
+            name: input.nameController.text.trim(),
+            amount: double.parse(input.amountController.text.trim()),
+            unit: 'g',
+          ),
+        )
         .toList();
 
     if (ingredients.isEmpty) {
@@ -87,10 +155,13 @@ class _AddRecipePageState extends State<AddRecipePage> {
       name: _nameController.text.trim(),
       type: _recipeType.toLowerCase(),
       style: _recipeType == 'Dough' ? _doughStyle : null,
-      fillingType:
-          _recipeType == 'Filling' ? _fillingTypeController.text.trim() : null,
+      fillingType: _recipeType == 'Filling'
+          ? _fillingTypeController.text.trim()
+          : null,
       description: 'Custom recipe for ${_nameController.text.trim()}',
       ingredients: ingredients,
+      isFavorite: _isFavorite,
+      rating: _rating,
     );
 
     setState(() {
@@ -112,9 +183,9 @@ class _AddRecipePageState extends State<AddRecipePage> {
       );
       Navigator.of(context).pop(true);
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save recipe: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to save recipe: $error')));
     } finally {
       if (mounted) {
         setState(() {
@@ -127,9 +198,7 @@ class _AddRecipePageState extends State<AddRecipePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Recipe'),
-      ),
+      appBar: AppBar(title: const Text('Add Recipe')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -151,10 +220,7 @@ class _AddRecipePageState extends State<AddRecipePage> {
                 },
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Type',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              const Text('Type', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -214,50 +280,16 @@ class _AddRecipePageState extends State<AddRecipePage> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _doughStyle == 'Cantonese style'
-                              ? Theme.of(context).colorScheme.primary
-                              : Colors.grey[300],
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _doughStyle = 'Cantonese style';
-                          });
-                        },
-                        child: Text(
-                          'Cantonese style',
-                          style: TextStyle(
-                            color: _doughStyle == 'Cantonese style'
-                                ? Colors.white
-                                : Colors.black,
-                          ),
-                        ),
-                      ),
+                    _buildDoughStyleImageButton(
+                      'Cantonese style',
+                      'Cantonese style',
+                      'cantoneseStyle',
                     ),
                     const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _doughStyle == 'Snow skin'
-                              ? Theme.of(context).colorScheme.primary
-                              : Colors.grey[300],
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _doughStyle = 'Snow skin';
-                          });
-                        },
-                        child: Text(
-                          'Snow skin',
-                          style: TextStyle(
-                            color: _doughStyle == 'Snow skin'
-                                ? Colors.white
-                                : Colors.black,
-                          ),
-                        ),
-                      ),
+                    _buildDoughStyleImageButton(
+                      'Snow skin',
+                      'Snow skin',
+                      'snowSkin',
                     ),
                   ],
                 ),
@@ -283,82 +315,108 @@ class _AddRecipePageState extends State<AddRecipePage> {
                   },
                 ),
               ],
+              const SizedBox(height: 16),
+              SwitchListTile(
+                title: const Text('Favorite'),
+                value: _isFavorite,
+                onChanged: (value) {
+                  setState(() {
+                    _isFavorite = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Rating: ${_rating.toStringAsFixed(1)}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Slider(
+                value: _rating,
+                min: 0,
+                max: 5,
+                divisions: 10,
+                label: _rating.toStringAsFixed(1),
+                onChanged: (value) {
+                  setState(() {
+                    _rating = value;
+                  });
+                },
+              ),
               const SizedBox(height: 24),
               const Text(
                 'Ingredients',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              ..._ingredients.asMap().entries.map(
-                (entry) {
-                  final index = entry.key;
-                  final ingredient = entry.value;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: TextFormField(
-                            controller: ingredient.nameController,
-                            decoration: InputDecoration(
-                              labelText: 'Ingredient ${index + 1}',
-                              border: const OutlineInputBorder(),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Enter ingredient name.';
-                              }
-                              return null;
-                            },
+              ..._ingredients.asMap().entries.map((entry) {
+                final index = entry.key;
+                final ingredient = entry.value;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: TextFormField(
+                          controller: ingredient.nameController,
+                          decoration: InputDecoration(
+                            labelText: 'Ingredient ${index + 1}',
+                            border: const OutlineInputBorder(),
                           ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Enter ingredient name.';
+                            }
+                            return null;
+                          },
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          flex: 2,
-                          child: TextFormField(
-                            controller: ingredient.amountController,
-                            decoration: const InputDecoration(
-                              labelText: 'Amount',
-                              border: OutlineInputBorder(),
-                            ),
-                            keyboardType:
-                                const TextInputType.numberWithOptions(decimal: true),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Enter amount.';
-                              }
-                              if (double.tryParse(value.trim()) == null) {
-                                return 'Invalid number.';
-                              }
-                              return null;
-                            },
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: TextFormField(
+                          controller: ingredient.amountController,
+                          decoration: const InputDecoration(
+                            labelText: 'Amount',
+                            border: OutlineInputBorder(),
                           ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Enter amount.';
+                            }
+                            if (double.tryParse(value.trim()) == null) {
+                              return 'Invalid number.';
+                            }
+                            return null;
+                          },
                         ),
-                        const SizedBox(width: 12),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 20,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Text('g'),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 20,
                         ),
-                        const SizedBox(width: 8),
-                        if (_ingredients.length > 1)
-                          IconButton(
-                            icon: const Icon(Icons.remove_circle_outline),
-                            onPressed: () => _removeIngredient(index),
-                          ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text('g'),
+                      ),
+                      const SizedBox(width: 8),
+                      if (_ingredients.length > 1)
+                        IconButton(
+                          icon: const Icon(Icons.remove_circle_outline),
+                          onPressed: () => _removeIngredient(index),
+                        ),
+                    ],
+                  ),
+                );
+              }),
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
@@ -372,7 +430,9 @@ class _AddRecipePageState extends State<AddRecipePage> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
+                      onPressed: _isSaving
+                          ? null
+                          : () => Navigator.of(context).pop(),
                       child: const Text('Cancel'),
                     ),
                   ),

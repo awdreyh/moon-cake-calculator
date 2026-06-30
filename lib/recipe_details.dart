@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'app_bottom_navigation.dart';
+import 'utils/app_bottom_navigation.dart';
 
 class RecipeDetailsPage extends StatelessWidget {
   final String recipeName;
