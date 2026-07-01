@@ -45,6 +45,8 @@ class AppStrings {
       'noRecipesFound': 'No recipes found',
       'noRecipesAvailable': 'No recipes available',
       'back': 'Back',
+      'close': 'Close',
+      'noTasks': 'No tasks yet. Create one to get started!',
     },
     'zh': {
       'moonCakeCalculator': '月饼计算器',
@@ -91,6 +93,8 @@ class AppStrings {
       'noRecipesFound': '未找到食谱',
       'noRecipesAvailable': '没有可用的食谱',
       'back': '返回',
+      'close': '关闭',
+      'noTasks': '还没有任务。创建一个任务开始！',
     },
   };
 
