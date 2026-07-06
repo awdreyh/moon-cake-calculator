@@ -15,19 +15,23 @@ class Recipe {
   final String type;
   final String? style;
   final String? fillingType;
-  final String description;
+  final String? description;
   final List<Ingredient> ingredients;
-  final bool isFavorite;
-  final double rating;
+  final bool? isFavorite;
+  final double? rating;
+  final String? url;
+  final String? comment;
 
   Recipe({
     required this.name,
     required this.type,
     this.style,
     this.fillingType,
-    required this.description,
+    this.description,
     required this.ingredients,
     this.isFavorite = false,
     this.rating = 0.0,
+    this.url,
+    this.comment
   });
 }

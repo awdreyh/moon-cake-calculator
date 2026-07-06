@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Moon Cake Calculator',
       theme: AppTheme.lightTheme,
-      locale: languageProvider.locale,
+      locale: languageProvider.locale, 
       home: const MyHomePage(title: 'Moon Cake Calculator'),
     );
   }
@@ -60,7 +60,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   //int _counter = 0;
   final int _currentNavIndex = 0;
-  final RecipeService _recipeService = RecipeService();
+  final Service _recipeService = Service();
   late Future<List<Recipe>> _recipesFuture;
   List<Recipe> _recipes = [];
   String? _selectedType = 'Cantonese-style';
@@ -187,7 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: const Color.fromARGB(
             255,
-            154,
+            158,
             10,
             10,
           ), // background of the top bar

@@ -13,7 +13,7 @@ void main() {
   databaseFactory = databaseFactoryFfi;
 
   test('saveRecipe creates a sqlite database and stores the recipe', () async {
-    final service = RecipeService(databaseName: 'recipe_service_test.db');
+    final service = Service(databaseName: 'recipe_service_test.db');
     final dbDirectory = await getDatabasesPath();
     final dbFile = File('${dbDirectory}${Platform.pathSeparator}recipe_service_test.db');
 
@@ -41,7 +41,7 @@ void main() {
   });
 
   test('saveTask creates tasks and task_ingredients tables and stores task data', () async {
-    final service = RecipeService(databaseName: 'task_service_test.db');
+    final service = Service(databaseName: 'task_service_test.db');
     final dbDirectory = await getDatabasesPath();
     final dbFile = File('${dbDirectory}${Platform.pathSeparator}task_service_test.db');
 

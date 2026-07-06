@@ -1,13 +1,12 @@
 import 'dart:io';
-
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:sqflite/sqflite.dart';
 import 'package:xml/xml.dart';
 import 'recipe.dart';
 import 'task.dart';
 
-class RecipeService {
-  RecipeService({String? databaseName}) : _databaseName = databaseName ?? 'recipes.db';
+class Service {
+  Service({String? databaseName}) : _databaseName = databaseName ?? 'recipes.db';
 
   static Database? _database;
   final String _databaseName;
@@ -41,6 +40,8 @@ class RecipeService {
           }).toList(),
           isFavorite: (recipeMap['is_favorite'] as int) == 1,
           rating: (recipeMap['rating'] as num).toDouble(),
+          url: recipeMap['url'] as String?,
+          comment: recipeMap['comment'] as String?,
         ),
       );
     }
@@ -57,8 +58,10 @@ class RecipeService {
       'style': recipe.style,
       'filling_type': recipe.fillingType,
       'description': recipe.description,
-      'is_favorite': recipe.isFavorite ? 1 : 0,
+      'is_favorite': recipe.isFavorite,
       'rating': recipe.rating,
+      'url': recipe.url,
+      'comment': recipe.comment,
     });
 
     for (final ingredient in recipe.ingredients) {
@@ -135,6 +138,12 @@ class RecipeService {
 
     final databaseDirectory = await getDatabasesPath();
     final databasePath = '${databaseDirectory}${Platform.pathSeparator}$_databaseName';
+
+    // Delete old database to reset on app restart
+    final databaseFile = File(databasePath);
+    if (await databaseFile.exists()) {
+      await databaseFile.delete();
+    }
 
     _database = await openDatabase(
       databasePath,

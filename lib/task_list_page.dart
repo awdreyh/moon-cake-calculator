@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'recipe.dart';
 import 'service.dart';
@@ -16,12 +17,13 @@ class TaskListPage extends StatefulWidget {
 }
 
 class _TaskListPageState extends State<TaskListPage> {
-  final RecipeService _recipeService = RecipeService();
+  final Service _recipeService = Service();
   late Future<List<Task>> _tasksFuture;
 
   @override
   void initState() {
     super.initState();
+    initializeDateFormatting();
     _tasksFuture = _recipeService.loadTasks();
   }
 
@@ -123,7 +125,7 @@ class _TaskListPageState extends State<TaskListPage> {
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Text('Style: ${recipe.style}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
                   ),
-                if (recipe.description.isNotEmpty)
+                if (recipe.description != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Text('Description: ${recipe.description}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
@@ -220,7 +222,7 @@ class _TaskListPageState extends State<TaskListPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppStrings.get('tasks', lang)),
+        title: const Text('Tasks'),   
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: FutureBuilder<List<Task>>(

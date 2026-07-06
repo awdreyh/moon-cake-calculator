@@ -26,7 +26,7 @@ class _IngredientInput {
 
 class _AddRecipePageState extends State<AddRecipePage> {
   final _formKey = GlobalKey<FormState>();
-  final RecipeService _recipeService = RecipeService();
+  final Service _recipeService = Service();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _fillingTypeController = TextEditingController();
   final List<_IngredientInput> _ingredients = List.generate(

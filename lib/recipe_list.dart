@@ -13,7 +13,7 @@ class RecipeListPage extends StatefulWidget {
 
 class _RecipeListPageState extends State<RecipeListPage> {
   late Future<List<Recipe>> _recipesFuture;
-  final RecipeService _recipeService = RecipeService();
+  final Service _recipeService = Service();
 
   @override
   void initState() {
@@ -120,12 +120,7 @@ class _RecipeListPageState extends State<RecipeListPage> {
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       elevation: 1,
       child: ExpansionTile(
-        title: Text(recipe.name),
-        subtitle: Text(
-          recipe.description,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
+        title: Text(recipe.name),       
         childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         children: [
           if (recipe.style != null || recipe.fillingType != null)
