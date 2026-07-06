@@ -2,63 +2,76 @@
 <recipes>
   <!-- Dough Recipe -->
   <recipe>
-    <name>Basic Cantonese style moon cake dough</name>
-    <type>dough</type>
-    <style>Cantonese style</style>
-    <description>This is a basic cantonese style moon cake dough recipet</description>
+    <name>广式月饼</name>
+    <type>饼皮</type>
+    <style>广式月饼</style>
+    <description>基础广式月饼饼皮食谱</description>
     <ingredients>
-      <ingredient name="Flour" amount="162" unit="g"/>
-      <ingredient name="Syrup" amount="114" unit="g"/>     
-      <ingredient name="Oil" amount="44" unit="g"/>
-       <ingredient name="Lye water" amount="2" unit="g"/>
+      <ingredient name="面粉" amount="162" unit="g"/>
+      <ingredient name="转化糖浆" amount="114" unit="g"/>     
+      <ingredient name="油" amount="44" unit="g"/>
+       <ingredient name="碱水" amount="2" unit="g"/>
     </ingredients>
     <url>n/a</url>
   </recipe>
 
   <!-- Snow Skin Dough Recipe -->
   <recipe>
-    <name>Snow skin moon cake dough</name>
-    <type>dough</type>
-    <style>Snow skin</style>
-    <description>This is a basic snow skin moon cake dough recipe</description>
+    <name>冰皮月饼</name>
+    <type>饼皮</type>
+    <style>冰皮月饼</style>
+    <description>基础冰皮月饼饼皮食谱</description>
     <ingredients>
-      <ingredient name="Glutinous rice flour" amount="41" unit="g"/>
-      <ingredient name="Wheat flour" amount="26" unit="g"/>
-      <ingredient name="Rice flour" amount="34" unit="g"/>
-      <ingredient name="Powder sugar" amount="25" unit="g"/>
-      <ingredient name="Milk" amount="172" unit="g"/>
-      <ingredient name="Butter or oil" amount="25" unit="g"/>
+      <ingredient name="糯米粉" amount="41" unit="g"/>
+      <ingredient name="澄粉" amount="26" unit="g"/>
+      <ingredient name="粘米粉" amount="34" unit="g"/>
+      <ingredient name="糖" amount="25" unit="g"/>
+      <ingredient name="牛奶" amount="172" unit="g"/>
+      <ingredient name="植物油" amount="25" unit="g"/>
     </ingredients>
     <url>n/a</url>
   </recipe>
 
   <!-- Filling Recipes -->
   <recipe>
-    <name>Red bean filling</name>
-    <type>filling</type>
-    <filling_type>Red bean</filling_type>
-    <description>Basic red bean filling recipe from internet</description>
+    <name>红豆沙馅</name>
+    <type>馅料</type>
+    <filling_type>红豆沙</filling_type>
+    <description>从互联网获取的基础红豆沙馅食谱</description>
     <ingredients>
-      <ingredient name="Red bean (dry)" amount="168" unit="g"/>
-      <ingredient name="Syrup" amount="33" unit="g"/>
-      <ingredient name="Sugar" amount="33" unit="g"/>
-      <ingredient name="Oil" amount="33" unit="g"/>
+      <ingredient name="红豆（干）" amount="168" unit="g"/>
+      <ingredient name="转化糖浆" amount="33" unit="g"/>
+      <ingredient name="糖" amount="33" unit="g"/>
+      <ingredient name="植物油" amount="33" unit="g"/>
+    </ingredients>
+    <url>n/a</url>
+  </recipe>
+    <recipe>
+    <name>莲蓉馅</name>
+    <type>馅料</type>
+    <filling_type>莲蓉</filling_type>
+    <description>从互联网获取的基础莲蓉馅食谱</description>
+    <ingredients>
+      <ingredient name="莲子 （干）" amount="168" unit="g"/>
+      <ingredient name="转化糖浆" amount="33" unit="g"/>
+      <ingredient name="糖" amount="33" unit="g"/>
+      <ingredient name="植物油" amount="33" unit="g"/>
     </ingredients>
     <url>n/a</url>
   </recipe>
 
 
   <recipe>
-    <name>Five nuts filling</name>
-    <type>filling</type>
-    <filling_type>Five nuts</filling_type>
-    <description>Traditional five nuts filling for moon cakes</description>
+    <name>五仁馅</name>
+    <type>馅料</type>
+    <filling_type>五仁</filling_type>
+    <description>传统的五仁月饼馅料食谱</description>
     <ingredients>
-      <ingredient name="Mixed nuts" amount="240" unit="g"/>
-      <ingredient name="Mixed dried fruits" amount="80" unit="g"/>
-      <ingredient name="Flour" amount="67" unit="g"/>
-      <ingredient name="Oil" amount="80" unit="g"/>
-      <ingredient name="Syrup" amount="60" unit="g"/>     
+      <ingredient name="混合坚果" amount="240" unit="g"/>
+      <ingredient name="混合干果" amount="80" unit="g"/>
+      <ingredient name="面粉或糯米粉" amount="67" unit="g"/>
+      <ingredient name="植物油" amount="80" unit="g"/>
+      <ingredient name="转化糖浆" amount="60" unit="g"/>     
   
     </ingredients>
     <url>n/a</url>
