@@ -2,8 +2,8 @@ class GreetingHelper {
   static String greeting() {
     final hour = DateTime.now().hour;
 
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
+    if (hour < 12) return "早上好";
+    if (hour < 17) return "下午好";
+    return "晚上好";
   }
 }

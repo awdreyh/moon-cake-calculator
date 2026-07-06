@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'recipe.dart';
-import 'recipe_service.dart';
+import 'service.dart';
 import 'task.dart';
 import 'app_strings.dart';
 import 'language_provider.dart';

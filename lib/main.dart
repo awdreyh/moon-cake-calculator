@@ -6,7 +6,7 @@ import 'app_strings.dart';
 import 'language_provider.dart';
 
 import 'recipe.dart';
-import 'recipe_service.dart';
+import 'service.dart';
 import 'task.dart';
 import 'package:moon_cake_app/utils/greeting.dart';
 import 'package:flutter/services.dart';
@@ -314,6 +314,29 @@ class _MyHomePageState extends State<MyHomePage> {
                       )
                       .toList();
 
+                  // Auto-select first recipe if not already selected
+                  if (_selectedRecipe == null && doughRecipes.isNotEmpty) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      setState(() {
+                        _selectedRecipe = doughRecipes.first.name;
+                      });
+                    });
+                  }
+                  if (_selectedFillingRecipe == null && fillingRecipes.isNotEmpty) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      setState(() {
+                        _selectedFillingRecipe = fillingRecipes.first.name;
+                      });
+                    });
+                  }
+                  if (_fillingType == null && fillingTypes.isNotEmpty) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      setState(() {
+                        _fillingType = fillingTypes.first;
+                      });
+                    });
+                  }
+
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -322,22 +345,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       if (fillingTypes.isEmpty)
                         Column(
                           children: [
-                            _buildFillingTypeButton(
-                              label: AppStrings.get('redBean', lang),
-                              value: 'Red Bean',
-                            ),
-                            const SizedBox(height: 12),
-                            _buildFillingTypeButton(
-                              label: AppStrings.get('lotusSeeds', lang),
-                              value: 'Lotus Seed',
-                            ),
-                            if (_selectedType != 'Snow skin') ...[
-                              const SizedBox(height: 12),
-                              _buildFillingTypeButton(
-                                label: AppStrings.get('fiveNuts', lang),
-                                value: 'Five Nuts',
-                              ),
-                            ],
+                            const Text('无馅料类型可用，请添加馅料食谱。'),  
                           ],
                         )
                       else
@@ -354,9 +362,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       if (doughRecipes.isNotEmpty) ...[
                         const SizedBox(height: 16),
-                        const Text(
-                          'Dough recipes',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                         Text(
+                          AppStrings.get('doughRecipe', lang),                       
                         ),
                         const SizedBox(height: 8),
                         Wrap(
@@ -377,13 +384,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       ],
                       if (_fillingType != null) ...[
                         const SizedBox(height: 16),
-                        const Text(
-                          'Filling recipes',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                         Text(
+                          AppStrings.get('fillingRecipe', lang),                       
                         ),
                         const SizedBox(height: 8),
                         if (fillingRecipes.isEmpty)
-                          const Text('No filling recipes for this selection.')
+                           Text(AppStrings.get('noFillingRecipes', lang))
                         else
                           Wrap(
                             spacing: 8,
@@ -497,10 +503,9 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(height: 18),
               Text(AppStrings.get('qty', lang)),
               const SizedBox(height: 8),
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 8,
-                runSpacing: 8,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   IconButton(
                     icon: const Icon(Icons.remove),
@@ -544,25 +549,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
               const SizedBox(height: 18),
-              const Divider(thickness: 2),
-              const SizedBox(height: 18),
-              Text(
-                AppStrings.get('calculate', lang),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
+             
+              
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _canCalculate() ? _calculateRecipe : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFC70C0F),
+                    backgroundColor: const Color(0xFFC70C0F),                      
                     disabledBackgroundColor: Colors.grey[400],
                   ),
-                  child: const Text('Calculate ingredients'),
+                  child:  Text(AppStrings.get('calculate', lang),style: const TextStyle(color: Colors.white), ),
+                  
                 ),
               ),
               const SizedBox(height: 16),
@@ -663,21 +661,23 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _showCalculationResultDialog(List<_CalculatedIngredient> ingredients) {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final lang = languageProvider.languageCode;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Calculation Result'),
+        title:  Text(AppStrings.get('calculationResult', lang)),
         content: SingleChildScrollView(
           child: _buildDialogIngredientsList(ingredients),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child:  Text(AppStrings.get('cancel', lang)),
           ),
           ElevatedButton(
             onPressed: () => _saveCalculationAsTask(ingredients),
-            child: const Text('Save'),
+            child:  Text(AppStrings.get('saveTask', lang)),
           ),
         ],
       ),
@@ -685,8 +685,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildDialogIngredientsList(List<_CalculatedIngredient> ingredients) {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final lang = languageProvider.languageCode;
+
     if (ingredients.isEmpty) {
-      return const Text('No ingredients.');
+      return  Text(AppStrings.get('noIngredients', lang));
     }
 
     final sections = ingredients.fold<Map<String, List<_CalculatedIngredient>>>(
@@ -702,8 +705,8 @@ class _MyHomePageState extends State<MyHomePage> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          'Size: ${_size}g x ${_quantity} cakes\nRatio: ${_ratio}',
-          style: const TextStyle(fontSize: 12, color: Colors.black54),
+          '${_quantity} x ${_size}g \n${AppStrings.get('pastryFillingRatio', lang)}: ${_ratio}',
+          style: const TextStyle(fontSize: 14, color: Colors.black54),
         ),
         const SizedBox(height: 12),
         ...sections.entries.map((entry) {

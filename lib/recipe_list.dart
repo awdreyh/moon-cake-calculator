@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'utils/app_bottom_navigation.dart';
 import 'recipe.dart';
-import 'recipe_service.dart';
+import 'service.dart';
 import 'add_recipe_page.dart';
 
 class RecipeListPage extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'recipe.dart';
-import 'recipe_service.dart';
+import 'service.dart';
 import 'utils/app_bottom_navigation.dart';
 
 class AddRecipePage extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class LanguageProvider extends ChangeNotifier {
-  String _languageCode = 'en';
+  String _languageCode = 'zh';
 
   String get languageCode => _languageCode;
 
@@ -15,7 +15,7 @@ class LanguageProvider extends ChangeNotifier {
   }
 
   void toggleLanguage() {
-    _languageCode = _languageCode == 'en' ? 'zh' : 'en';
+    _languageCode = _languageCode == 'zh' ? 'en' : 'zh';
     notifyListeners();
   }
 }
