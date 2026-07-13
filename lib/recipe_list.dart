@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'utils/app_bottom_navigation.dart';
 import 'recipe.dart';
-import 'service.dart';
+import 'service_2.dart';
 import 'add_recipe_page.dart';
 
 class RecipeListPage extends StatefulWidget {
@@ -13,12 +13,12 @@ class RecipeListPage extends StatefulWidget {
 
 class _RecipeListPageState extends State<RecipeListPage> {
   late Future<List<Recipe>> _recipesFuture;
-  final Service _recipeService = Service();
+  final MCService _mcService = MCService();
 
   @override
   void initState() {
     super.initState();
-    _recipesFuture = _recipeService.loadRecipes();
+    _recipesFuture = _mcService.loadRecipes();
   }
 
   @override
@@ -49,8 +49,8 @@ class _RecipeListPageState extends State<RecipeListPage> {
           }
 
           final recipes = snapshot.data!;
-          final doughRecipes = recipes.where((recipe) => recipe.type.toLowerCase() == 'dough').toList();
-          final fillingRecipes = recipes.where((recipe) => recipe.type.toLowerCase() == 'filling').toList();
+          final doughRecipes = recipes.where((recipe) => recipe.type == RecipeType.dough).toList();
+          final fillingRecipes = recipes.where((recipe) => recipe.type ==RecipeType.filling).toList();
 
           return ListView(
             padding: const EdgeInsets.symmetric(vertical: 8),
@@ -86,7 +86,7 @@ class _RecipeListPageState extends State<RecipeListPage> {
           );
           if (result == true) {
             setState(() {
-              _recipesFuture = _recipeService.loadRecipes();
+              _recipesFuture = _mcService.loadRecipes();
             });
           }
         }, 
@@ -123,16 +123,16 @@ class _RecipeListPageState extends State<RecipeListPage> {
         title: Text(recipe.name),       
         childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         children: [
-          if (recipe.style != null || recipe.fillingType != null)
+          if (recipe.doughType != null || recipe.fillingType != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Wrap(
                 spacing: 8,
                 runSpacing: 4,
                 children: [
-                  if (recipe.style != null)
+                  if (recipe.doughType != null)
                     Chip(
-                      label: Text(recipe.style!),
+                      label: Text(recipe.doughType!),
                       visualDensity: VisualDensity.compact,
                     ),
                   if (recipe.fillingType != null)

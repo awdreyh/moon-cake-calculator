@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'recipe.dart';
-import 'service.dart';
+import 'service_2.dart';
 import 'task.dart';
 import 'app_strings.dart';
 import 'language_provider.dart';
@@ -17,14 +17,14 @@ class TaskListPage extends StatefulWidget {
 }
 
 class _TaskListPageState extends State<TaskListPage> {
-  final Service _recipeService = Service();
+  final MCService _mcService = MCService();
   late Future<List<Task>> _tasksFuture;
 
   @override
   void initState() {
     super.initState();
     initializeDateFormatting();
-    _tasksFuture = _recipeService.loadTasks();
+    _tasksFuture = _mcService.loadTasks();
   }
 
   void _showTaskDetailsModal(Task task, String lang) {
@@ -34,7 +34,7 @@ class _TaskListPageState extends State<TaskListPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          '${task.doughRecipeName} + ${task.fillingRecipeName}',
+          '${task.doughRecipe.name} + ${task.fillingRecipe.name}',
           style: const TextStyle(fontSize: 16),
         ),
         content: SingleChildScrollView(
@@ -51,9 +51,9 @@ class _TaskListPageState extends State<TaskListPage> {
               _buildTaskInfo('Quantity', '${task.quantity} cakes'),
               _buildTaskInfo('Ratio', task.ratio),
               const SizedBox(height: 16),
-              _buildRecipeLink(task.doughRecipeName, 'Dough', lang),
+              _buildRecipeLink(task.doughRecipe.name, 'Dough', lang),
               const SizedBox(height: 8),
-              _buildRecipeLink(task.fillingRecipeName, 'Filling', lang),
+              _buildRecipeLink(task.fillingRecipe.name, 'Filling', lang),
               const SizedBox(height: 16),
               const Text(
                 'Calculated Ingredients',
@@ -99,12 +99,15 @@ class _TaskListPageState extends State<TaskListPage> {
   }
 
   void _showRecipeDetailModal(String recipeName, String lang) async {
-    final recipes = await _recipeService.loadRecipes();
+    final recipes = await _mcService.loadRecipes();
     final recipe = recipes.firstWhere(
       (r) => r.name == recipeName,
       orElse: () => Recipe(
+        id: 0,
         name: recipeName,
-        type: 'unknown',
+        type: RecipeType.dough,
+        doughType: 'unknown',
+        fillingType: 'unknown',
         description: 'Recipe not found',
         ingredients: [],
       ),
@@ -120,10 +123,10 @@ class _TaskListPageState extends State<TaskListPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (recipe.style != null)
+                if (recipe.doughType != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: Text('Style: ${recipe.style}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                    child: Text('Style: ${recipe.doughType}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
                   ),
                 if (recipe.description != null)
                   Padding(
@@ -172,7 +175,7 @@ class _TaskListPageState extends State<TaskListPage> {
     final sections = ingredients.fold<Map<String, List<TaskIngredient>>>(
       <String, List<TaskIngredient>>{},
       (map, ingredient) {
-        map.putIfAbsent(ingredient.section, () => <TaskIngredient>[]).add(ingredient);
+        map.putIfAbsent(ingredient.type, () => <TaskIngredient>[]).add(ingredient);
         return map;
       },
     );
@@ -257,7 +260,7 @@ class _TaskListPageState extends State<TaskListPage> {
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
                   title: Text(
-                    '${task.doughRecipeName} + ${task.fillingRecipeName}',
+                    '${task.doughRecipe.name} + ${task.fillingRecipe.name}',
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   subtitle: Text(

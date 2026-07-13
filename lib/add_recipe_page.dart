@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'recipe.dart';
-import 'service.dart';
+import 'service_2.dart';
 import 'utils/app_bottom_navigation.dart';
 
 class AddRecipePage extends StatefulWidget {
@@ -26,7 +26,7 @@ class _IngredientInput {
 
 class _AddRecipePageState extends State<AddRecipePage> {
   final _formKey = GlobalKey<FormState>();
-  final Service _recipeService = Service();
+  final MCService _mcService = MCService();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _fillingTypeController = TextEditingController();
   final List<_IngredientInput> _ingredients = List.generate(
@@ -137,6 +137,7 @@ class _AddRecipePageState extends State<AddRecipePage> {
         .where((input) => input.nameController.text.trim().isNotEmpty)
         .map(
           (input) => Ingredient(
+            id: DateTime.now().millisecondsSinceEpoch,
             name: input.nameController.text.trim(),
             amount: double.parse(input.amountController.text.trim()),
             unit: 'g',
@@ -152,9 +153,10 @@ class _AddRecipePageState extends State<AddRecipePage> {
     }
 
     final recipe = Recipe(
+      id: DateTime.now().millisecondsSinceEpoch,
       name: _nameController.text.trim(),
-      type: _recipeType.toLowerCase(),
-      style: _recipeType == 'Dough' ? _doughStyle : null,
+      type: _recipeType == 'Dough' ? RecipeType.dough : RecipeType.filling,
+      doughType: _recipeType == 'Dough' ? _doughStyle : null,
       fillingType: _recipeType == 'Filling'
           ? _fillingTypeController.text.trim()
           : null,
@@ -169,7 +171,7 @@ class _AddRecipePageState extends State<AddRecipePage> {
     });
 
     try {
-      final confirmMessage = await _recipeService.saveRecipe(recipe);
+      final confirmMessage = await _mcService.saveRecipe(recipe);
       if (!mounted) {
         return;
       }

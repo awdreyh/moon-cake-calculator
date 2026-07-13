@@ -1,276 +1,152 @@
+import 'dart:async';
 import 'dart:io';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/widgets.dart';
+import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:xml/xml.dart';
 import 'recipe.dart';
 import 'task.dart';
 
-class Service {
-  Service({String? databaseName}) : _databaseName = databaseName ?? 'recipes.db';
 
-  static Database? _database;
-  final String _databaseName;
-
-  Future<List<Recipe>> loadRecipes() async {
-    final database = await _databaseInstance();
-    final recipeMaps = await database.query('recipes', orderBy: 'id');
-
-    final recipes = <Recipe>[];
-    for (final recipeMap in recipeMaps) {
-      final ingredientMaps = await database.query(
-        'recipe_ingredients',
-        where: 'recipe_id = ?',
-        whereArgs: [recipeMap['id']],
-        orderBy: 'id',
-      );
-
-      recipes.add(
-        Recipe(
-          name: recipeMap['name'] as String,
-          type: recipeMap['type'] as String,
-          style: recipeMap['style'] as String?,
-          fillingType: recipeMap['filling_type'] as String?,
-          description: recipeMap['description'] as String,
-          ingredients: ingredientMaps.map((ingredientMap) {
-            return Ingredient(
-              name: ingredientMap['name'] as String,
-              amount: (ingredientMap['amount'] as num).toDouble(),
-              unit: ingredientMap['unit'] as String,
-            );
-          }).toList(),
-          isFavorite: (recipeMap['is_favorite'] as int) == 1,
-          rating: (recipeMap['rating'] as num).toDouble(),
-          url: recipeMap['url'] as String?,
-          comment: recipeMap['comment'] as String?,
-        ),
-      );
-    }
-
-    return recipes;
+void main() async {
+  // Avoid errors caused by flutter upgrade.
+  // Importing 'package:flutter/widgets.dart' is required.
+  WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isAndroid) {
+    print('Running on Android');
+  } else if (Platform.isIOS) {
+    print('Running on iOS');
   }
-
-  Future<String?> saveRecipe(Recipe recipe) async {
-    final database = await _databaseInstance();
-
-    final recipeId = await database.insert('recipes', {
-      'name': recipe.name,
-      'type': recipe.type,
-      'style': recipe.style,
-      'filling_type': recipe.fillingType,
-      'description': recipe.description,
-      'is_favorite': recipe.isFavorite,
-      'rating': recipe.rating,
-      'url': recipe.url,
-      'comment': recipe.comment,
-    });
-
-    for (final ingredient in recipe.ingredients) {
-      await database.insert('recipe_ingredients', {
-        'recipe_id': recipeId,
-        'name': ingredient.name,
-        'amount': ingredient.amount,
-        'unit': ingredient.unit,
-      });
-    }
-
-    return null;
-  }
-
-  Future<int> saveTask(Task task) async {
-    final database = await _databaseInstance();
-
-    final taskId = await database.insert('tasks', task.toMap());
-
-    for (final ingredient in task.ingredients) {
-      await database.insert('task_ingredients', {
-        'task_id': taskId,
-        'section': ingredient.section,
-        'name': ingredient.name,
-        'amount': ingredient.amount,
-        'unit': ingredient.unit,
-      });
-    }
-
-    return taskId;
-  }
-
-  Future<List<Task>> loadTasks() async {
-    final database = await _databaseInstance();
-    final taskMaps = await database.query('tasks', orderBy: 'created_at DESC');
-
-    final tasks = <Task>[];
-    for (final taskMap in taskMaps) {
-      final ingredientMaps = await database.query(
-        'task_ingredients',
-        where: 'task_id = ?',
-        whereArgs: [taskMap['id']],
-        orderBy: 'id',
-      );
-
-      tasks.add(
-        Task(
-          id: taskMap['id'] as int,
-          doughRecipeName: taskMap['dough_recipe_name'] as String,
-          fillingRecipeName: taskMap['filling_recipe_name'] as String,
-          size: taskMap['size'] as int,
-          quantity: taskMap['quantity'] as int,
-          ratio: taskMap['ratio'] as String,
-          ingredients: ingredientMaps.map((ingredientMap) {
-            return TaskIngredient(
-              section: ingredientMap['section'] as String,
-              name: ingredientMap['name'] as String,
-              amount: (ingredientMap['amount'] as num).toDouble(),
-              unit: ingredientMap['unit'] as String,
-            );
-          }).toList(),
-          createdAt: DateTime.parse(taskMap['created_at'] as String),
-        ),
-      );
-    }
-
-    return tasks;
-  }
-
-  Future<Database> _databaseInstance() async {
-    if (_database != null) {
-      return _database!;
-    }
-
-    final databaseDirectory = await getDatabasesPath();
-    final databasePath = '${databaseDirectory}${Platform.pathSeparator}$_databaseName';
-
-    // Delete old database to reset on app restart
-    final databaseFile = File(databasePath);
-    if (await databaseFile.exists()) {
-      await databaseFile.delete();
-    }
-
-    _database = await openDatabase(
-      databasePath,
-      version: 3,
-      onCreate: (db, version) async {
+  // Open the database and store the reference.
+  final database = openDatabase(
+    // Set the path to the database. Note: Using the `join` function from the
+    // `path` package is best practice to ensure the path is correctly
+    // constructed for each platform.
+    join(await getDatabasesPath(), 'moonCake_database.db'),
+    // When the database is first created, create a table to store dogs.
+     onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE recipes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            type TEXT NOT NULL,
-            style TEXT,
+            type RecipeType NOT NULL,
+            
+            dough_type TEXT,
             filling_type TEXT,
             description TEXT NOT NULL,
             is_favorite INTEGER NOT NULL DEFAULT 0,
             rating REAL NOT NULL DEFAULT 0
           )
         ''');
-        await db.execute('''
-          CREATE TABLE recipe_ingredients (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            recipe_id INTEGER NOT NULL,
-            name TEXT NOT NULL,
-            amount REAL NOT NULL,
-            unit TEXT NOT NULL,
-            FOREIGN KEY (recipe_id) REFERENCES recipes (id) ON DELETE CASCADE
-          )
-        ''');
-        await db.execute('''
-          CREATE TABLE tasks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            dough_recipe_name TEXT NOT NULL,
-            filling_recipe_name TEXT NOT NULL,
-            size INTEGER NOT NULL,
-            quantity INTEGER NOT NULL,
-            ratio TEXT NOT NULL,
-            created_at TEXT NOT NULL
-          )
-        ''');
-        await db.execute('''
-          CREATE TABLE task_ingredients (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            task_id INTEGER NOT NULL,
-            section TEXT NOT NULL,
-            name TEXT NOT NULL,
-            amount REAL NOT NULL,
-            unit TEXT NOT NULL,
-            FOREIGN KEY (task_id) REFERENCES tasks (id) ON DELETE CASCADE
-          )
-        ''');
-      },
-      onUpgrade: (db, oldVersion, newVersion) async {
-        if (oldVersion < 2) {
-          await db.execute('ALTER TABLE recipes ADD COLUMN is_favorite INTEGER NOT NULL DEFAULT 0');
-          await db.execute('ALTER TABLE recipes ADD COLUMN rating REAL NOT NULL DEFAULT 0');
-        }
-        if (oldVersion < 3) {
-          await db.execute('''
-            CREATE TABLE tasks (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              dough_recipe_name TEXT NOT NULL,
-              filling_recipe_name TEXT NOT NULL,
-              size INTEGER NOT NULL,
-              quantity INTEGER NOT NULL,
-              ratio TEXT NOT NULL,
-              created_at TEXT NOT NULL
-            )
-          ''');
-          await db.execute('''
-            CREATE TABLE task_ingredients (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              task_id INTEGER NOT NULL,
-              section TEXT NOT NULL,
-              name TEXT NOT NULL,
-              amount REAL NOT NULL,
-              unit TEXT NOT NULL,
-              FOREIGN KEY (task_id) REFERENCES tasks (id) ON DELETE CASCADE
-            )
-          ''');
-        }
-      },
-    );
+      // Run the CREATE TABLE statement on the database.
+      return db.execute(
+        'CREATE TABLE recipe(id INTEGER PRIMARY KEY, name TEXT, recipe INTEGER)',
+      );
+    },
+    // Set the version. This executes the onCreate function and provides a
+    // path to perform database upgrades and downgrades.
+    version: 1,
+  );
 
-    await _seedFromXmlIfNeeded(_database!);
-    return _database!;
+  // Define a function that inserts dogs into the database
+  Future<void> insertDog(Dog dog) async {
+    // Get a reference to the database.
+    final db = await database;
+
+    // Insert the Dog into the correct table. You might also specify the
+    // `conflictAlgorithm` to use in case the same dog is inserted twice.
+    //
+    // In this case, replace any previous data.
+    await db.insert(
+      'dogs',
+      dog.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
-  Future<void> _seedFromXmlIfNeeded(Database database) async {
-    final count = Sqflite.firstIntValue(
-      await database.rawQuery('SELECT COUNT(*) FROM recipes'),
+  // A method that retrieves all the dogs from the dogs table.
+  Future<List<Dog>> dogs() async {
+    // Get a reference to the database.
+    final db = await database;
+
+    // Query the table for all the dogs.
+    final List<Map<String, Object?>> dogMaps = await db.query('dogs');
+
+    // Convert the list of each dog's fields into a list of `Dog` objects.
+    return [
+      for (final {'id': id as int, 'name': name as String, 'age': age as int}
+          in dogMaps)
+        Dog(id: id, name: name, age: age),
+    ];
+  }
+
+  Future<void> updateDog(Dog dog) async {
+    // Get a reference to the database.
+    final db = await database;
+
+    // Update the given Dog.
+    await db.update(
+      'dogs',
+      dog.toMap(),
+      // Ensure that the Dog has a matching id.
+      where: 'id = ?',
+      // Pass the Dog's id as a whereArg to prevent SQL injection.
+      whereArgs: [dog.id],
     );
+  }
 
-    if (count != null && count > 0) {
-      return;
-    }
+  Future<void> deleteDog(int id) async {
+    // Get a reference to the database.
+    final db = await database;
 
-    final xml = await rootBundle.loadString('assets/recipes.xml');
-    final document = XmlDocument.parse(xml);
-    final recipeNodes = document.findAllElements('recipe');
+    // Remove the Dog from the database.
+    await db.delete(
+      'dogs',
+      // Use a `where` clause to delete a specific dog.
+      where: 'id = ?',
+      // Pass the Dog's id as a whereArg to prevent SQL injection.
+      whereArgs: [id],
+    );
+  }
 
-    for (final node in recipeNodes) {
-      final recipeId = await database.insert('recipes', {
-        'name': node.findElements('name').first.innerText,
-        'type': node.findElements('type').first.innerText,
-        'style': node.findElements('style').isNotEmpty
-            ? node.findElements('style').first.innerText
-            : null,
-        'filling_type': node.findElements('filling_type').isNotEmpty
-            ? node.findElements('filling_type').first.innerText
-            : null,
-        'description': node.findElements('description').first.innerText,
-        'is_favorite': 0,
-        'rating': 0,
-      });
+  // Create a Dog and add it to the dogs table
+  var fido = Dog(id: 0, name: 'Fido', age: 35);
 
-      final ingredientNodes = node
-          .findElements('ingredients')
-          .first
-          .findElements('ingredient');
+  await insertDog(fido);
 
-      for (final ingredientNode in ingredientNodes) {
-        await database.insert('recipe_ingredients', {
-          'recipe_id': recipeId,
-          'name': ingredientNode.getAttribute('name')!,
-          'amount': double.parse(ingredientNode.getAttribute('amount')!),
-          'unit': ingredientNode.getAttribute('unit')!,
-        });
-      }
-    }
+  // Now, use the method above to retrieve all the dogs.
+  print(await dogs()); // Prints a list that include Fido.
+
+  // Update Fido's age and save it to the database.
+  fido = Dog(id: fido.id, name: fido.name, age: fido.age + 7);
+  await updateDog(fido);
+
+  // Print the updated results.
+  print(await dogs()); // Prints Fido with age 42.
+
+  // Delete Fido from the database.
+  await deleteDog(fido.id);
+
+  // Print the list of dogs (empty).
+  print(await dogs());
+}
+
+class Dog {
+  final int id;
+  final String name;
+  final int age;
+
+  Dog({required this.id, required this.name, required this.age});
+
+  // Convert a Dog into a Map. The keys must correspond to the names of the
+  // columns in the database.
+  Map<String, Object?> toMap() {
+    return {'id': id, 'name': name, 'age': age};
+  }
+
+  // Implement toString to make it easier to see information about
+  // each dog when using the print statement.
+  @override
+  String toString() {
+    return 'Dog{id: $id, name: $name, age: $age}';
   }
 }
