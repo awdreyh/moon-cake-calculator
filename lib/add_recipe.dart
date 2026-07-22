@@ -29,6 +29,9 @@ class _AddRecipePageState extends State<AddRecipePage> {
   final MCService _mcService = MCService();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _fillingTypeController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _sizeController = TextEditingController();
+  final TextEditingController _ratioController = TextEditingController();
   final List<_IngredientInput> _ingredients = List.generate(
     3,
     (_) => _IngredientInput(),
@@ -43,6 +46,9 @@ class _AddRecipePageState extends State<AddRecipePage> {
   void dispose() {
     _nameController.dispose();
     _fillingTypeController.dispose();
+    _quantityController.dispose();
+    _sizeController.dispose();
+    _ratioController.dispose();
     for (final ingredient in _ingredients) {
       ingredient.dispose();
     }
@@ -156,6 +162,15 @@ class _AddRecipePageState extends State<AddRecipePage> {
       id: DateTime.now().millisecondsSinceEpoch,
       name: _nameController.text.trim(),
       type: _recipeType == 'Dough' ? RecipeType.dough : RecipeType.filling,
+      quantity: _quantityController.text.trim().isEmpty
+          ? 8
+          : int.parse(_quantityController.text.trim()),
+      size: _sizeController.text.trim().isEmpty
+          ? 100
+          : int.parse(_sizeController.text.trim()),
+      ratio: _ratioController.text.trim().isEmpty
+          ? 0.4
+          : double.parse(_ratioController.text.trim()),
       doughType: _recipeType == 'Dough' ? _doughStyle : null,
       fillingType: _recipeType == 'Filling'
           ? _fillingTypeController.text.trim()

@@ -24,6 +24,9 @@ void main() {
       id: 1,
       name: 'Test recipe',
       type: RecipeType.dough,
+      quantity: 8,
+      size: 100,
+      ratio: 0.4,
       doughType: 'Cantonese style',
       description: 'Persisted via sqlite',
       ingredients: [
@@ -38,6 +41,82 @@ void main() {
 
     expect(await dbFile.exists(), isTrue);
     expect(recipes.any((item) => item.name == 'Test recipe'), isTrue);
+  });
+
+  test('saveRecipe replaces existing ingredients instead of duplicating them', () async {
+    final service = MCService(databaseName: 'ingredient_idempotency_test.db');
+    final dbDirectory = await getDatabasesPath();
+    final dbFile = File('${dbDirectory}${Platform.pathSeparator}ingredient_idempotency_test.db');
+
+    if (await dbFile.exists()) {
+      await dbFile.delete();
+    }
+
+    final recipe = Recipe(
+      id: 10,
+      name: 'Repeatable recipe',
+      type: RecipeType.dough,
+      quantity: 8,
+      size: 100,
+      ratio: 0.4,
+      doughType: 'Test style',
+      description: 'Should stay idempotent',
+      ingredients: [
+        Ingredient(id: 101, name: 'Flour', amount: 100, unit: 'g'),
+      ],
+    );
+
+    final updatedRecipe = Recipe(
+      id: 10,
+      name: 'Repeatable recipe',
+      type: RecipeType.dough,
+      quantity: 8,
+      size: 100,
+      ratio: 0.4,
+      doughType: 'Test style',
+      description: 'Should stay idempotent',
+      ingredients: [
+        Ingredient(id: 101, name: 'Flour', amount: 120, unit: 'g'),
+        Ingredient(id: 102, name: 'Sugar', amount: 50, unit: 'g'),
+      ],
+    );
+
+    await service.saveRecipe(recipe);
+    await service.saveRecipe(updatedRecipe);
+
+    final recipes = await service.loadRecipes();
+    final persistedRecipe = recipes.firstWhere((item) => item.id == 10);
+
+    expect(persistedRecipe.ingredients.length, 2);
+    expect(persistedRecipe.ingredients.any((ingredient) => ingredient.name == 'Sugar'), isTrue);
+    expect(persistedRecipe.ingredients.any((ingredient) => ingredient.name == 'Flour' && ingredient.amount == 120), isTrue);
+  });
+
+  test('saveRecipe rejects recipes when type-specific fields are missing', () async {
+    final service = MCService(databaseName: 'recipe_constraint_test.db');
+    final dbDirectory = await getDatabasesPath();
+    final dbFile = File('${dbDirectory}${Platform.pathSeparator}recipe_constraint_test.db');
+
+    if (await dbFile.exists()) {
+      await dbFile.delete();
+    }
+
+    final invalidRecipe = Recipe(
+      id: 2,
+      name: 'Invalid recipe',
+      type: RecipeType.dough,
+      quantity: 8,
+      size: 100,
+      ratio: 0.4,
+      doughType: null,
+      fillingType: null,
+      description: 'This should fail validation',
+      ingredients: [
+        Ingredient(id: 21, name: 'Flour', amount: 100, unit: 'g'),
+      ],
+    );
+
+    expect(() => service.saveRecipe(invalidRecipe), throwsA(isA<DatabaseException>()));
   });
 
   test('saveTask creates tasks and task_ingredients tables and stores task data', () async {

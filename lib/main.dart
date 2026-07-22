@@ -12,7 +12,13 @@ import 'package:moon_cake_app/utils/greeting.dart';
 import 'package:flutter/services.dart';
 import 'theme/app_theme.dart';
 
-void main() {
+void main() async {
+  //   WidgetsFlutterBinding.ensureInitialized();
+
+  // await SystemChrome.setPreferredOrientations([
+  //   DeviceOrientation.portraitUp,
+  //   DeviceOrientation.portraitDown,
+  // ]);
   runApp(
     MultiProvider(
       providers: [ChangeNotifierProvider(create: (_) => LanguageProvider())],
@@ -26,7 +32,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final languageProvider = Provider.of<LanguageProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
     return MaterialApp(
       title: 'Moon Cake Calculator',
       theme: AppTheme.lightTheme,

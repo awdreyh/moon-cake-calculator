@@ -1,4 +1,5 @@
 
+
 enum RecipeType {
   dough,
   filling;
@@ -45,6 +46,9 @@ class Recipe {
   final String? doughType;
   final String? fillingType;
   final String? description;
+  final int quantity;
+  final int size;
+  final double? ratio;
   final List<Ingredient> ingredients;
   final bool? isFavorite;
   final double? rating;
@@ -55,12 +59,15 @@ class Recipe {
     required this.id,
     required this.name, // eg: '祖母的豆沙馅食谱'
     required this.type,
-    this.doughType = '广式月饼',
-    this.fillingType = '豆沙',
+    required this.quantity,
+    required this.size,
+    required this.ratio,    
+    this.doughType,
+    this.fillingType,
     this.description,
     required this.ingredients,
     this.isFavorite = false,
-    this.rating = 5.0,
+    this.rating,
     this.url,
     this.comment,
   });
@@ -69,6 +76,9 @@ class Recipe {
     'id': id,
     'name': name,
     'type': type.toMap(),
+    'quantity': quantity,
+    'size': size,
+    'ratio': ratio,
     'doughType': doughType,
     'fillingType': fillingType,
     'description': description,
@@ -83,6 +93,9 @@ class Recipe {
     id: map['id'] as int,
     name: map['name'] as String,
     type: RecipeType.fromMap(map['type'] as String),
+    quantity: map['quantity'] as int,
+    size: map['size'] as int,
+    ratio: (map['ratio'] as num?)?.toDouble(),
     doughType: map['doughType'] as String?,
     fillingType: map['fillingType'] as String?,
     description: map['description'] as String?,

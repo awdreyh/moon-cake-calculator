@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../app_strings.dart';
 import '../language_provider.dart';
 import '../recipe_list.dart';
-import '../task_list_page.dart';
+import '../task_list.dart';
 
 class AppBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
